@@ -1,0 +1,86 @@
+libros_famosos_50 = [
+    "1984",
+    "To Kill a Mockingbird",
+    "The Great Gatsby",
+    "One Hundred Years of Solitude",
+    "Brave New World",
+    "The Catcher in the Rye",
+    "The Lord of the Rings",
+    "Pride and Prejudice",
+    "The Hobbit",
+    "The Chronicles of Narnia",
+    "The Harry Potter series",
+    "The Hunger Games",
+    "The Da Vinci Code",
+    "The Shining",
+    "Moby-Dick",
+    "War and Peace",
+    "The Odyssey",
+    "The Divine Comedy",
+    "Don Quixote",
+    "Crime and Punishment",
+    "The Grapes of Wrath",
+    "The Brothers Karamazov",
+    "The Old Man and the Sea",
+    "Frankenstein",
+    "Jane Eyre",
+    "Wuthering Heights",
+    "The Picture of Dorian Gray",
+    "Alice's Adventures in Wonderland",
+    "The Adventures of Sherlock Holmes",
+    "Les Misérables",
+    "Anna Karenina",
+    "A Tale of Two Cities",
+    "Great Expectations",
+    "The Scarlet Letter",
+    "Dracula",
+    "The Count of Monte Cristo",
+    "The War of the Worlds",
+    "The Jungle Book",
+    "The Iliad",
+    "The Canterbury Tales",
+    "The Art of War",
+    "The Sun Also Rises",
+    "The Outsiders",
+    "The Girl with the Dragon Tattoo",
+    "The Hitchhiker's Guide to the Galaxy",
+    "The Road",
+    "The Alchemist",
+    "Siddhartha"
+]
+
+nombres = [
+    "Liam", "Noah", "Ethan", "Oliver", "Aiden", "Lucas", "Mason", "Logan", "Caleb", "Elijah",
+    "Benjamin", "Jackson", "Alexander", "Henry", "Sebastian", "Samuel", "Daniel", "Matthew", "James", "David",
+    "Joseph", "William", "Michael", "Andrew", "Anthony", "Nicholas", "Christopher", "Ryan", "Jacob", "John",
+    "Jonathan", "Nathan", "Brandon", "Justin", "Austin", "Dylan", "Evan", "Kevin", "Brian", "Tyler",
+    "Thomas", "Richard", "Charles", "Robert", "Edward", "William", "George", "Michael", "Joseph", "David",
+    "Daniel",
+    "Emma", "Olivia", "Ava", "Isabella", "Sophia", "Mia", "Amelia", "Harper", "Evelyn", "Abigail",
+    "Emily", "Elizabeth", "Mila", "Ella", "Avery", "Sofia", "Camila", "Aria", "Scarlett", "Victoria",
+    "Grace", "Chloe", "Lily", "Hannah", "Layla", "Brooklyn", "Zoe", "Nora", "Leah", "Aubrey",
+    "Madison", "Charlotte", "Aurora", "Eleanor", "Grace", "Penelope", "Hazel", "Lucy", "Violet", "Aria",
+    "Luna", "Stella", "Nova", "Everly", "Willow", "Elena", "Isabelle", "Lillian", "Gianna", "Eliana",
+    "Emma"
+]
+
+apellidos_ficticios = [
+    "Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "García", "Rodríguez", "Martínez",
+    "Hernández", "López", "González", "Pérez", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson",
+    "White", "Harris", "Martin", "Thompson", "Gómez", "Martín", "Pérez", "Gómez", "Fernández", "Sánchez",
+    "Ramírez", "Williams", "Lee", "Walker", "Hall", "Allen", "Young", "Hernández", "King", "Wright",
+    "López", "Hill", "Scott", "Green", "Adams", "Baker", "González", "Nelson", "Carter", "Mitchell",
+    "Pérez", "Roberts", "Turner", "Phillips", "Campbell", "Parker", "Evans", "Edwards", "Collins", "Stewart",
+    "Sánchez", "Morales", "Díaz", "Reyes", "Gutiérrez", "Ruiz", "Ruiz", "Alvarez", "Ruiz", "Reyes",
+    "Gómez", "Díaz", "Torres", "Díaz", "Díaz", "Herrera", "Vásquez", "Torres", "Díaz", "Gómez",
+    "Castro", "González", "Pérez", "Sánchez", "Martínez", "González", "Torres", "Díaz", "Vargas", "Torres"
+]
+
+
+direcciones = [
+    "Main Street", "First Avenue", "Oak Street", "Maple Avenue", "Pine Street", "Cedar Avenue", "Elm Street", "Birch Avenue", "Willow Street", "Ash Avenue",
+    "Highland Drive", "Sunset Boulevard", "Meadow Lane", "River Road", "Greenwood Avenue", "Lakeview Drive", "Sycamore Street", "Chestnut Avenue", "Hilltop Drive", "Park Avenue",
+    "Forest Lane", "Valley View Road", "Broadway", "Grove Street", "Washington Avenue", "Lincoln Street", "Jefferson Avenue", "Madison Street", "Monroe Avenue", "Adams Street",
+    "Roosevelt Boulevard", "Franklin Lane", "Jackson Street", "Wilson Avenue", "Truman Street", "Kennedy Avenue", "Eisenhower Lane", "Clinton Street", "Van Buren Avenue", "Hoover Drive",
+    "Garfield Lane", "Arthur Street", "Cleveland Avenue", "Buchanan Street", "Johnson Drive", "Grant Lane", "Hayes Avenue", "McKinley Street", "Taft Boulevard", "Fillmore Lane"
+]
