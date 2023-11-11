@@ -1,6 +1,6 @@
 from datetime import datetime
-from libro import Libro
-from ..Patrones.observers import Observer
+from Programs.DAO.TP.Codigo.Clases.NG_libro import Libro
+from ..Patrones.PR_observers import Observer
 
 
 class Prestamo(Observer):

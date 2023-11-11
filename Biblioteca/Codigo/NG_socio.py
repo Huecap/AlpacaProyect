@@ -1,6 +1,6 @@
 from datetime import date, timedelta
-from prestamo import Prestamo
-from ..Patrones.observers import Sujeto
+from Programs.DAO.TP.Codigo.Clases.NG_prestamo import Prestamo
+from ..Patrones.PR_observers import Sujeto
 
 
 class Socio:
