@@ -29,8 +29,8 @@ class Libro:
         pass
 
     @titulo.setter
-    def titulo(self):
-        pass
+    def titulo(self, titulo):
+        self._titulo = titulo
 
     @estado.setter
     def estado(self, estado):
