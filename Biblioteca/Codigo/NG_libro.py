@@ -1,8 +1,12 @@
+from HR_validaciones import validar_entero, validar_flotante, validar_string
 class Libro:
-    def __init__(self, titulo: str, estado: str, precio: int) -> None:
-        self._codigo = None  # El código lo genera la base de datos # Ta bien nazii # Pana
+
+    estados = ("Disponible", "Prestado", "Extraviado")
+
+    def __init__(self, titulo: str, precio: int) -> None:
+        self._codigo = None 
         self._titulo = titulo
-        self._estado = estado
+        self._estado = "Disponible"
         self._precio = precio
 
     # Getters
@@ -24,23 +28,54 @@ class Libro:
         return self._precio
 
     @codigo.setter
-    def codigo(self):
-        # IMPORTANTISIMO QUE EXISTA # Pana
-        pass
+    def codigo(self, codigo):
+        if validar_entero(codigo):
+            self._codigo = int(codigo)
+            resultado = "El codigo de libro se ha registrado correctamente: {codigo}"
+        else: 
+            resultado = "No se ha podido registrar el codigo del libro"
+        return resultado
 
     @titulo.setter
     def titulo(self, titulo):
-        self._titulo = titulo
+        if validar_string(titulo):
+            self._titulo = titulo
+            resultado = "El titulo del libro se ha registrado correctamente: {titulo}"
+        else:
+            resultado = "No se ha podido registrar el nuevo titulo del libro"
+        return resultado
 
     @estado.setter
     def estado(self, estado):
-        self._estado = estado
+        if validar_entero(estado):
+            self._estado = int(estado)
+            resultado = f'El estado del libro se ha registrado correctamente: {estado}'
+        else:
+            resultado = 'No se ha podido registrar el estado del libro'
+        return resultado             
 
     @precio.setter
     def precio(self, precio):
-        self._precio = precio
+        if validar_flotante(precio):
+            self._precio = float(precio)
+            resultado = f"El Precio del libro se ha registrado correctamente: {precio}"
+        else:
+            resultado = "No se ha podido registrar el precio del libro"
+        return resultado 
 
     def __str__(self) -> str:
-        pass
-
+        cadena = f"Codigo: {self._codigo}\n"
+        cadena += f"Titulo: {self._titulo}\n"
+        cadena += f"Estado: {self._estado}\n"
+        cadena += f"Precio: {self._precio}"
+        return cadena
     # Validaciones de los campos de la clase # Pana
+
+if __name__ == '__main__':
+    
+    libro = Libro('Harry popoter', 1000)
+    print(libro)
+    libro.codigo = 12
+    libro.titulo = 12
+    libro.estado = 12
+    print(libro.codigo)
