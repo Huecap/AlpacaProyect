@@ -18,7 +18,7 @@
 
 > Nombres funciones = minúsculas + snake_case 
 
-
+---
 #### docstring:
 > Utilizamos el formato rest(Sphinx) 
 Línea de Resumen: La primera línea del docstring debería ser una breve descripción de la función.
@@ -50,7 +50,7 @@ def validar_entero(valor : any):
         resultado = False
     return resultado
 ```
-
+---
 #### cometarios en docstring con Better comments 
 ```python 
 
