@@ -3,28 +3,17 @@ Tabla de libros
 """
 
 from sqlite3 import Error
-from conexion import DBConnection
+from DB_conexion import DBConnection
 
 
-class TablaLibros(DBConnection):
+class TablaLibros:
     """
     Clase que representa y se comunica con la Tabla Libros de la base de datos
     """
 
     conn = DBConnection("biblioteca.db").dbconnection
-    # Creacion de las tablas en un modulo aparte luego de crear la conexion # Pana
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXIST Libros
-                        (codigo INTEGER PRIMARY KEY,
-                        titulo TEXT,
-                        estado VARCHAR,
-                        precio FLOAT)"""
-        )
-    except Error as er:
-        print(er)
 
+    # Colocarle formato # Pana
     def __str__(self):
         cadena = "|---|---|---|\n"
         libros = self.show_table()
@@ -33,23 +22,41 @@ class TablaLibros(DBConnection):
         cadena += "|---|---|---|\n"
         return cadena
 
-    # Se puede unificar el metodo tomando otro parameto que filtre por un campo especifico, concatenando "WHERE campo=?" # Pana
-    def show_table(self) -> list:
+    def show_table(self, *campos):
         """
         Descripcion
-        :return: Una lista de tuplas que contienen los datos de cada registro
-        :rtype: list
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""SELECT * FROM Libros""")
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+        aux = ""
+        resultado = None
+
+        if not self.validar_show_table(campos) and len(campos) != 0:
+            resultado = 'Campos invalidos'
+        else:
+            if len(campos) == 0:
+                aux = "*"
+            elif self.validar_show_table(campos):
+                for elem in campos:
+                    aux += f"{elem},"
+                aux = aux[:-1]
+
+            try:
+                cursor = self.conn.cursor()
+                cursor.execute("SELECT {} FROM Libros".format(aux))
+                resultado = cursor.fetchall()
+            except Error as er:
+                resultado = er
+            finally:
+                cursor.close()
 
         return resultado
+
+    def validar_show_table(self, tupla):
+        var = (
+            [campo in ("codigo", "titulo", "estado", "precio") for campo in tupla]
+            if len(tupla) > 0
+            else [False]
+        )
+        return all(var)
 
     def show_libro(self, codigo: int) -> tuple:
         # RETORNAR EL ID # Pana
@@ -65,7 +72,7 @@ class TablaLibros(DBConnection):
             cursor.execute(
                 """SELECT codigo, titulo, estado, precio
                               FROM Libros
-                              WHERE id=?""",
+                              WHERE codigo=?""",
                 (codigo,),
             )
             resultado = cursor.fetchall()
