@@ -3,7 +3,7 @@ Tabla de socios
 """
 
 from sqlite3 import Error
-from conexion import DBConnection
+from DB_conexion import DBConnection
 
 
 class TablaSocios(DBConnection):
