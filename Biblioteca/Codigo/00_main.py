@@ -4,6 +4,7 @@ que tiene que tener la interfaz"""
 
 import schedule
 import time 
+from datetime import date, datetime , timedelta
 import threading
 
 # -- Ventana Libros -- # 
@@ -74,7 +75,9 @@ def ejecutar_tareas_programadas():
         time.sleep(120)
 
 if __name__ == '__main__':
-    schedule.every().day.at("03:16").do(validar)
+    
+    #schedule.every().day.at("03:16").do(validar)
     # schedule.every(1).hour.do(validar)
-    threading.Thread(target=ejecutar_tareas_programadas, daemon=True).start()
-    a = input('Terminar programa presione enter')
+    #threading.Thread(target=ejecutar_tareas_programadas, daemon=True).start()
+    # a = input('Terminar programa presione enter')
+    pass 

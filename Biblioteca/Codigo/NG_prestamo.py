@@ -22,7 +22,7 @@ class Prestamo( Observer):
         self._fechaDevolucion = None
         self._estado = "En Fecha"
         self._socioID = socioID
-        self.libro.update(1)
+        self.libro.modificar_estado(1)
 
     @property
     def libro(self) -> Libro:
@@ -86,20 +86,20 @@ class Prestamo( Observer):
     
     def prestamo_en_fecha(self):
         self._estado = "En Fecha"
-        self._libro.update(1)
+        self._libro.modificar_estado(1)
     
     def prestamo_vencido(self):
         self._estado = "Vencido"
-        self._libro.update(1)
+        self._libro.modificar_estado(1)
         
     def prestamo_devuelto(self):
         self._estado = "Devuelto"  
-        self._libro.update(2)      
+        self._libro.modificar_estado(2)      
         self._fechaDevolucion = date.today()
         
     def prestamo_extraviado(self):
         self._estado = "Extraviado"
-        self._libro.update(3)
+        self._libro.modificar_estado(3)
     
     
     def modificar_estado(self, estado : int):
@@ -127,8 +127,21 @@ class Prestamo( Observer):
     
     # --- Métodos de observer ---- #
     
-    def update(self, estado):  # Metodo para update de observers
-        self.modificar_estado(estado)
+    def update(self):  # Metodo para update de observers 
+        """
+        Verifica si el prestamo se vencio , permite cambiar de estado al prestamo en caso que si 
+    
+        :param estado: _description_
+        :type estado: _type_
+        """
+        fecha_estimada = self._fechaPrestamo+self._cantidadDias
+        if date.today() > fecha_estimada:
+            if (date.today()-fecha_estimada).day > 30:
+                self._modificar_estado(4)
+            else:
+                self._modificar_estado(2)
+
+        
 
     def __str__(self) -> str:
         cadena = "----Infomracion de Prestamo----\n"

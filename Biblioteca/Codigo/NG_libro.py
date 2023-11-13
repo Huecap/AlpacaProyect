@@ -2,9 +2,7 @@ from HR_validaciones import validar_entero, validar_flotante, validar_string
 from PR_observers import Observer
 
 
-class Libro(Observer):
-
-    estados = ("Disponible", "Prestado", "Extraviado")
+class Libro():
 
     def __init__(self, titulo: str, precio: float) -> None:
         """_summary_
@@ -88,9 +86,9 @@ class Libro(Observer):
         :return: Cadena de caracteres con la información del obejto libro
         :rtype: str
         """
-        cadena = f"Codigo: {self._codigo}\n"
-        cadena += f"Titulo: {self._titulo}\n"
-        cadena += f"Estado: {self._estado}\n"
+        cadena = f"Codigo: {self._codigo} - "
+        cadena += f"Titulo: {self._titulo} - "
+        cadena += f"Estado: {self._estado} - "
         cadena += f"Precio: {self._precio}"
         return cadena
     
@@ -122,11 +120,10 @@ class Libro(Observer):
         pass
     
     
-    # Metodos update 
-    def update(self, opcion: int):
+    # Metodos 
+    def modificar_estado(self, opcion: int):
         """
-        Método update de observer. 
-        Mediante la recepcion del mensaje del Subject Prestamo, dependiendo del parametro que reciba cambia el estado del libro
+        Modifica el estado del libro 
 
         :param opcion: recibe un entero 
             1 = El libro cambia su estado a prestado 

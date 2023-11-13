@@ -1,4 +1,4 @@
-from Programs.DAO.TP.Codigo.Herramientas.HR_datos import libros_famosos_50
+from HR_datos import libros_famosos_50
 import csv
 import random
 

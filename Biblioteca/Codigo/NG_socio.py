@@ -153,7 +153,7 @@ class Socio(Sujeto):
         
 
     def registrar_devolucion(self, prestamo):
-        prestamo.update(3)
+        prestamo.modificar_estado(3)
         self._prestamos.remove(prestamo)
         return "La devolucion se registro con Exito"
 
