@@ -5,6 +5,7 @@ Tabla de prestamos
 from sqlite3 import Error
 from datetime import datetime
 from DB_conexion import DBConnection
+import HR_formatos as formats
 
 
 #! Revisar y probar luego de hacer NG_prestamo
@@ -25,11 +26,18 @@ class TablaPrestamos:
         :rtype: str
         """
 
-        cadena = "> ------------------------- +\n"
         prestamos = TablaPrestamos.show_table()
-        for reg in prestamos:
-            cadena += f"{reg}\n"
-        cadena += "> ------------------------- +\n"
+        cadena = formats.cuadro_list_tuple(
+            prestamos,
+            1,
+            "Codigo",
+            "Fecha de Prestamo",
+            "Cantidad de Dias",
+            "Fecha de Devolucion",
+            "Estado",
+            "socioID",
+            "Codigo de Libro",
+        )
 
         return cadena
 
@@ -104,34 +112,43 @@ class TablaPrestamos:
         return all(existen)
 
     @staticmethod
-    def show_prestamo(codigo: int):
+    def show_prestamo(valor, campo: str = "codigo") -> list:
         """
-        Trae de la base de datos el registro de la tabla especificados por parametro
-        :param codigo: Codigo del prestamo que se esta buscando
-        :type codigo: int
-        :return: Devuelve los datos del registro encontrado
+        Busca en la tabla Libros por campo especificado por parametro,
+        un registro especifico o varios
+        :param valor: Valor del campo por el cual se esta buscando
+        :type valor: any
+        :param campo: Campo por el cual se desea buscar en la tabla Libros. Por defecto 'codigo'
+        :type campo: str
+        :return: Devuelve los datos de los registros encontrados
         o un False en caso de no encontrar ningun registro
         :rtype: ??
         """
 
-        if TablaPrestamos.validar_codigo(codigo):
-            try:
-                cursor = TablaPrestamos.conn.cursor()
-                cursor.execute(
-                    """SELECT codigo, fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo
-                                FROM Prestamos
-                                WHERE codigo=?""",
-                    (codigo,),
-                )
-                resultado = cursor.fetchall()
-            except Error:
-                resultado = (False,)
-            finally:
-                cursor.close()
+        # Valida que el campo seleccionado exista en la tabla
+        if TablaPrestamos.validar_campos((campo,)):
+            # Si el campo seleccionado es codigo,
+            # valida que valor sea un codigo existente en la tabla
+            if campo == "codigo" and not TablaPrestamos.validar_codigo(valor):
+                resultado = False
+            else:
+                try:
+                    cursor = TablaPrestamos.conn.cursor()
+                    cursor.execute(
+                        f"""SELECT codigo, fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo
+                                    FROM Libros
+                                    WHERE {campo}
+                                    LIKE '%{valor}%'"""
+                    )
+                    resultado = cursor.fetchall()
+                except Error:
+                    resultado = False
+                finally:
+                    cursor.close()
         else:
-            resultado = (False,)
+            resultado = False
 
-        return resultado[0]
+        return resultado
 
     # Pana
     # Crear metodo con SELECT que devuelva los prestamos segun el estado
@@ -163,7 +180,7 @@ class TablaPrestamos:
                     prestamo.fechaDevolucion,
                     prestamo.estado,
                     prestamo.socioID,
-                    prestamo.libroCodigo,
+                    prestamo.libro.codigo,  #! En caso de que el prestamo almacene el objeto libro
                 ),
             )
             prestamo.codigo = codigo.fetchall()[0][0]

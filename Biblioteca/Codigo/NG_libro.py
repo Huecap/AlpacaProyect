@@ -81,7 +81,6 @@ class Libro:
         if validar_string(titulo):
             self._titulo = titulo
 
-    #? Seria inecesario # Pana
     @estado.setter
     def estado(self, estado: str):
         """
@@ -89,6 +88,8 @@ class Libro:
         porque definí 3 funciones más abajo para cambiar los estados posibles
         ! De esa manera los unicos estados posibles estan controlados
         """
+        if validar_string(estado) and estado in ['Prestado', 'Disponible', 'Extraviado']:
+            self._estado = estado
 
     @precio.setter
     def precio(self, precio: float):
@@ -122,19 +123,19 @@ class Libro:
         """
         Permite cambiar el estado del objeto libro a Prestado
         """
-        self._estado = "Prestado"
+        self.estado = "Prestado"
 
     def devolver(self) -> None:
         """
         Permite cambiar el estado del objeto libro a "Disponible"
         """
-        self._estado = "Disponible"
+        self.estado = "Disponible"
 
     def extraviar(self) -> None:
         """
         Permite cambiar el estado del objeto libro a "Extraviado"
         """
-        self._estado = "Extraviado"
+        self.estado = "Extraviado"
 
     def guardar_libro(self) -> None:
         """

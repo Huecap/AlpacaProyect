@@ -4,6 +4,7 @@ Tabla de libros
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
+import HR_formatos as formats
 
 
 class TablaLibros:
@@ -23,11 +24,8 @@ class TablaLibros:
         :rtype: str
         """
 
-        cadena = "> ------------------------- +\n"
         libros = TablaLibros.show_table()
-        for reg in libros:
-            cadena += f"{reg}\n"
-        cadena += "> ------------------------- +\n"
+        cadena = formats.cuadro_list_tuple(libros, 1, 'Codigo', 'Titulo', 'Estado', 'Precio')
 
         return cadena
 

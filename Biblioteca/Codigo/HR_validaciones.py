@@ -50,7 +50,7 @@ def validar_string(valor : str):
     :rtype: bool
     """
     
-    if type(valor) == str:
+    if isinstance(valor, str):
         resultado = True
     else:
         resultado = False
@@ -66,13 +66,14 @@ def validar_fecha(valor : date):
     :return: Si el valor ingresado es una fecha de del tipo date, entonces retorna true, caso contrario retorna False
     :rtype: bool
     """
-    if type(valor) == date:
+    if isinstance(valor, date):
         resultado = True
     else:
         resultado = False
     return resultado
 
 
+#? Entiendo como usarlo pero no para que sirve o porque el codigo es como es # Pana
 def validar_validaciones(validacion):
     """
     Funcion que recibe como parametro "validacion" una funcion que permite validar valores
@@ -86,7 +87,7 @@ def validar_validaciones(validacion):
     while a != 'M': 
         a = input('Ingrese un valor: ')
         resultado = validacion(a)
-        if type(resultado) == float:
+        if isinstance(resultado, float):
             print('La operacion fue exitosa')
         else:
             print(resultado)

@@ -4,6 +4,7 @@ Tabla de socios
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
+import HR_formatos as formats
 
 
 class TablaSocios:
@@ -23,11 +24,8 @@ class TablaSocios:
         :rtype: str
         """
 
-        cadena = "> ------------------------- +\n"
         socio = TablaSocios.show_table()
-        for reg in socio:
-            cadena += f"{reg}\n"
-        cadena += "> ------------------------- +\n"
+        cadena = formats.cuadro_list_tuple(socio, 1, 'socioID', 'Nombre', 'Apellido', 'DNI', 'Telefono', 'Mail', 'Direccion')
 
         return cadena
 
