@@ -84,16 +84,6 @@ class Prestamo(Observer):
         :return: Devuelve el Libro del prestamo
         :rtype: Libro
         """
-        #* Pana
-        #* Si esta variable contiene solo el codigo del Libro:
-        #* previamente... from DB_tabla_libros import TablaLibros
-
-        #* libro_tuple = TablaLibros.show_libro(libroCodigo)
-        #* if libro_tuple:
-        #*      libro = Libro(libro_tuple[0][1], libro_tuple[0][3])
-        #*      libro.codigo = libro_tuple[0][0]
-        #*      libro.estado = libro_tuple[0][2]
-        #*      return libro
         return self._libro
 
     @codigo.setter
@@ -130,8 +120,6 @@ class Prestamo(Observer):
     @libro.setter
     def libro(self, libro: Libro):
         if isinstance(libro, Libro):
-            #* Pana
-            #* self._libro = libro.codigo
             self._libro = libro
 
     # --- Metodos --- #
@@ -198,7 +186,6 @@ class Prestamo(Observer):
         """
         Guardar prestamo en la base de datos
         """
-        #! No se si esta bien planteado # Pana
         TablaPrestamos.save(self)
 
     # --- Métodos de observer ---- #

@@ -4,5 +4,10 @@ from NG_libro import Libro
 import HR_formatos as formats
 
 print(TablaLibros())
-resultado = TablaLibros.show_libro(1)
-print(formats.listado_list_tuple(resultado))
+
+resultado = TablaLibros.show_table('titulo')
+
+if resultado:
+    for tupla in resultado:
+        for campo in tupla:
+            print(campo)

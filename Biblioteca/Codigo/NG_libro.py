@@ -23,6 +23,7 @@ class Libro:
         self._titulo = titulo
         self._estado = "Disponible"
         self._precio = precio
+        self.guardar_libro()
 
     # Getters
 
@@ -141,7 +142,6 @@ class Libro:
         """
         Guardar el libro en la tabla Libros de la base de datos
         """
-        #! No se si esta bien planteado # Pana
         TablaLibros.save(self)
 
     # Metodos

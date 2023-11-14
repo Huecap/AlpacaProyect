@@ -8,6 +8,7 @@ from NG_libro import Libro
 from PR_observers import Sujeto
 from HR_validaciones import validar_entero, validar_string
 from DB_tabla_socios import TablaSocios
+from DB_tabla_prestamos import TablaPrestamos
 
 
 class Socio(Sujeto):
@@ -195,7 +196,7 @@ class Socio(Sujeto):
             # Creamos el objeto Prestamo
             # TODO: Verificar luego de corregir NG_prestamo # Pana
             prestamo = Prestamo(fechaPrestamo, delta, self._socioID, libro)
-            #! Deveria almacenarse en la base de datos # Pana
+            #! TablaPrestamos.save(prestamo)
             # Agremos el prestamo al Socio
             self._prestamos.append(prestamo)
 
@@ -214,7 +215,6 @@ class Socio(Sujeto):
         return "La devolucion se registro con Exito"
 
     def guardar_socio(self):
-        #! No se si esta bien planteado # Pana
         TablaSocios.save(self)
 
     def __str__(self) -> str:
