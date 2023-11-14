@@ -5,6 +5,8 @@ Tabla de prestamos
 from sqlite3 import Error
 from datetime import datetime
 from DB_conexion import DBConnection
+from DB_tabla_libros import TablaLibros
+from DB_tabla_socios import TablaSocios
 import HR_formatos as formats
 
 
@@ -27,7 +29,7 @@ class TablaPrestamos:
         """
 
         prestamos = TablaPrestamos.show_table()
-        cadena = formats.cuadro_list_tuple(
+        cadena = formats.tabla_list_tuple(
             prestamos,
             0,
             "Codigo",
@@ -40,6 +42,79 @@ class TablaPrestamos:
         )
 
         return cadena
+
+    @staticmethod
+    def save(prestamo) -> bool:
+        """
+        Guarda el prestamo pasado por parametro en la tabla de la base de datos
+        :param prestamo: Prestamo que se desea guardar en la base de datos
+        :type prestamo: Prestamo
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
+        """
+
+        if not TablaPrestamos.validar_codigo(prestamo.codigo):
+            try:
+                cursor = TablaPrestamos.conn.cursor()
+                codigo = cursor.execute(
+                    """INSERT INTO Prestamos (fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo)
+                                        VALUES (?, ?, ?, ?, ?, ?)
+                                        returning codigo""",
+                    (
+                        prestamo.fechaPrestamo,
+                        prestamo.cantidadDias,
+                        prestamo.fechaDevolucion,
+                        prestamo.estado,
+                        prestamo.socio.socioID,
+                        prestamo.libro.codigo,
+                    ),
+                )
+                prestamo.codigo = codigo.fetchall()[0][0]
+                TablaPrestamos.conn.commit()
+                resultado = True
+            except Error as er:
+                resultado = False
+                print(er)
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def create_prestamo(codigo: int):
+        """
+        Permite acceder a un registro de la tabla e instanciarlo como un objeto de la clase Prestamo
+        :param codigo: Codigo del registro que se esta buscando
+        :type codigo: int
+        :return: Devuelve el objeto Prestamo ya instanciado
+        sin volverlo a almacenar en la base de datos
+        """
+        #! Para evitar la importacion ciclica
+        from NG_prestamo import Prestamo
+
+        if TablaPrestamos.validar_codigo(codigo):
+            registro = TablaPrestamos.show_prestamo(codigo)
+
+            if registro:
+                socio = TablaSocios.create_socio(registro[0][5])
+                libro = TablaLibros.create_libro(registro[0][6])
+                print(socio)
+                print(libro)
+                prestamo = Prestamo(
+                    registro[0][1], registro[0][2], socio, libro, crear=False
+                )
+                prestamo.codigo = registro[0][0]
+                prestamo.fechaDevolucion = registro[0][3]
+                prestamo.estado = registro[0][4]
+                print(prestamo)
+
+                resultado = prestamo
+        else:
+            resultado = False
+
+        return resultado
 
     @staticmethod
     def show_table(*campos: tuple):
@@ -78,38 +153,6 @@ class TablaPrestamos:
                 cursor.close()
 
         return resultado
-
-    @staticmethod
-    def validar_campos(campos: tuple) -> bool:
-        """
-        Valida que los campos pasados como parametros pertenezcan a la tabla
-        :param campos: Contiene valores en formato str
-        a ser validados como los nombres de los campos de la tabla
-        :type campos: tuple
-        :return: Devuelve un True en caso de que todos los valores
-        sean exactamente iguales / pertenezcan a los campos de la tabla
-        :rtype: bool
-        """
-
-        existen = (
-            [
-                campo
-                in (
-                    "codigo",
-                    "fechaPrestamo",
-                    "cantidadDias",
-                    "fechaDevolucion",
-                    "estado",
-                    "socioID",
-                    "libroCodigo",
-                )
-                for campo in campos
-            ]
-            if len(campos) > 0
-            else [False]
-        )
-
-        return all(existen)
 
     @staticmethod
     def show_prestamo(valor, campo: str = "codigo") -> list:
@@ -157,41 +200,6 @@ class TablaPrestamos:
     # Por ejemplo:
     #   SELECT id,estado,socioID FROM Prestamos ORDER BY socioID
     #   SELECT id,estado,COUNT(*) FROM Prestamos ORDER BY estado DESC
-
-    @staticmethod
-    def save(prestamo) -> bool:
-        """
-        Guarda el prestamo pasado por parametro en la tabla de la base de datos
-        :param prestamo: Prestamo que se desea guardar en la base de datos
-        :type prestamo: Prestamo
-        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
-        :rtype: bool
-        """
-
-        try:
-            cursor = TablaPrestamos.conn.cursor()
-            codigo = cursor.execute(
-                """INSERT INTO Prestamos (fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo)
-                                       VALUES (?, ?, ?, ?, ?, ?)
-                                       returning codigo""",
-                (
-                    prestamo.fechaPrestamo,
-                    prestamo.cantidadDias,
-                    prestamo.fechaDevolucion,
-                    prestamo.estado,
-                    prestamo.socio.socioID,
-                    prestamo.libro.codigo,
-                ),
-            )
-            prestamo.codigo = codigo.fetchall()[0][0]
-            TablaPrestamos.conn.commit()
-            resultado = True
-        except Error:
-            resultado = False
-        finally:
-            cursor.close()
-
-        return resultado
 
     @staticmethod
     def update_prestamo(
@@ -275,6 +283,38 @@ class TablaPrestamos:
             resultado = False
 
         return resultado
+
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
+        """
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
+        """
+
+        existen = (
+            [
+                campo
+                in (
+                    "codigo",
+                    "fechaPrestamo",
+                    "cantidadDias",
+                    "fechaDevolucion",
+                    "estado",
+                    "socioID",
+                    "libroCodigo",
+                )
+                for campo in campos
+            ]
+            if len(campos) > 0
+            else [False]
+        )
+
+        return all(existen)
 
     @staticmethod
     def validar_codigo(codigo: int) -> bool:

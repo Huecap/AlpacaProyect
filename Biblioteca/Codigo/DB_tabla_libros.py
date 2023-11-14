@@ -25,11 +25,68 @@ class TablaLibros:
         """
 
         libros = TablaLibros.show_table()
-        cadena = formats.cuadro_list_tuple(
+        cadena = formats.tabla_list_tuple(
             libros, 1, "Codigo", "Titulo", "Estado", "Precio"
         )
 
         return cadena
+
+    @staticmethod
+    def save(libro) -> bool:
+        """
+        Guarda el liblo pasado por parametro en la tabla de la base de datos
+        :param libro: Libro que se desea guardar en la base de datos
+        :type libro: Libro
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
+        """
+
+        if not TablaLibros.validar_codigo(libro.codigo):
+            try:
+                cursor = TablaLibros.conn.cursor()
+                codigo = cursor.execute(
+                    """INSERT INTO Libros (titulo, estado, precio)
+                                        VALUES (?, ?, ?)
+                                        returning codigo""",
+                    (libro.titulo, libro.estado, libro.precio),
+                )
+                libro.codigo = codigo.fetchall()[0][0]
+                TablaLibros.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def create_libro(codigo: int):
+        """
+        Permite acceder a un registro de la tabla e instanciarlo como un objeto de la clase Libro
+        :param codigo: Codigo del registro que se esta buscando
+        :type codigo: int
+        :return: Devuelve el objeto Libro ya instanciado
+        sin volverlo a almacenar en la base de datos
+        """
+        #! Para evitar la importacion ciclica
+        from NG_libro import Libro
+
+        if TablaLibros.validar_codigo(codigo):
+            registro = TablaLibros.show_libro(codigo)
+
+            if registro:
+                libro = Libro(registro[0][1], registro[0][3], crear=False)
+                libro.codigo = registro[0][0]
+                libro.estado = registro[0][2]
+
+                resultado = libro
+        else:
+            resultado = False
+
+        return resultado
 
     @staticmethod
     def show_table(*campos: tuple):
@@ -68,26 +125,6 @@ class TablaLibros:
                 cursor.close()
 
         return resultado
-
-    @staticmethod
-    def validar_campos(campos: tuple) -> bool:
-        """
-        Valida que los campos pasados como parametros pertenezcan a la tabla
-        :param campos: Contiene valores en formato str
-        a ser validados como los nombres de los campos de la tabla
-        :type campos: tuple
-        :return: Devuelve un True en caso de que todos los valores
-        sean exactamente iguales / pertenezcan a los campos de la tabla
-        :rtype: bool
-        """
-
-        existen = (
-            [campo in ("codigo", "titulo", "estado", "precio") for campo in campos]
-            if len(campos) > 0
-            else [False]
-        )
-
-        return all(existen)
 
     @staticmethod
     def show_libro(valor, campo: str = "codigo") -> list:
@@ -135,34 +172,6 @@ class TablaLibros:
     # Por ejemplo:
     #   SELECT id,nombre,autor FROM Libros ORDER BY nombre
     #   SELECT id,autor,COUNT(*) FROM Libros ORDER BY id DESC
-
-    @staticmethod
-    def save(libro) -> bool:
-        """
-        Guarda el liblo pasado por parametro en la tabla de la base de datos
-        :param libro: Libro que se desea guardar en la base de datos
-        :type libro: Libro
-        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
-        :rtype: bool
-        """
-
-        try:
-            cursor = TablaLibros.conn.cursor()
-            codigo = cursor.execute(
-                """INSERT INTO Libros (titulo, estado, precio)
-                                       VALUES (?, ?, ?)
-                                       returning codigo""",
-                (libro.titulo, libro.estado, libro.precio),
-            )
-            libro.codigo = codigo.fetchall()[0][0]
-            TablaLibros.conn.commit()
-            resultado = True
-        except Error:
-            resultado = False
-        finally:
-            cursor.close()
-
-        return resultado
 
     @staticmethod
     def update_libro(titulo: str, estado: str, precio: float, codigo: int) -> bool:
@@ -224,6 +233,26 @@ class TablaLibros:
             resultado = False
 
         return resultado
+
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
+        """
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
+        """
+
+        existen = (
+            [campo in ("codigo", "titulo", "estado", "precio") for campo in campos]
+            if len(campos) > 0
+            else [False]
+        )
+
+        return all(existen)
 
     @staticmethod
     def validar_codigo(codigo: int) -> bool:

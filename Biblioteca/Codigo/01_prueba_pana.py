@@ -7,29 +7,24 @@ from DB_tabla_prestamos import TablaPrestamos
 from NG_libro import Libro
 from NG_socio import Socio
 from NG_prestamo import Prestamo
+from DB_create_tables import create_tables
 
-# print(TablaLibros())
-# print(TablaSocios())
-# print(TablaPrestamos())
+# print(create_tables())
 
-# libro = Libro('Hola Python', 2000)
-# print(libro)
 # socio = Socio('Matias', 'Pana', 11223344, 3511234567, 'elpana@gmail.com', 'Juarez 126 CBA')
+# libro = Libro('Hola Python', 2000)
 # print(socio)
-# prestamo = Prestamo(datetime.today(), 5, socio, libro)
-# print(prestamo)
+# print(libro)
 
-# print(TablaPrestamos.show_table('estado'))
-# print(TablaPrestamos.show_prestamo('2023-11-14', 'fechaPrestamo'))
+# print(TablaSocios())
+# print(TablaLibros())
 
-# result = TablaPrestamos.update_prestamo(datetime.today(), 10, None, 'En Fecha', 1, 1, 2)
-# print(result)
-# result = TablaPrestamos.update_prestamo(datetime.today(), 10, None, 'En Fecha', 1, 1, 1)
-# print(result)
-# print(TablaPrestamos.show_table())
+# socio = TablaSocios.create_socio(1)
+# print(socio)
+# libro = TablaLibros.create_libro(1)
+# print(libro)
 
-# result = TablaPrestamos.delete_prestamo(2)
-# print(result)
-# result = TablaPrestamos.delete_prestamo(1)
-# print(result)
+# socio.nuevo_prestamo(libro, 5)
+# print(socio.prestamos)
+
 # print(TablaPrestamos())

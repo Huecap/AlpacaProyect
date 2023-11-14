@@ -25,7 +25,7 @@ class TablaSocios:
         """
 
         socio = TablaSocios.show_table()
-        cadena = formats.cuadro_list_tuple(
+        cadena = formats.tabla_list_tuple(
             socio,
             1,
             "socioID",
@@ -38,6 +38,77 @@ class TablaSocios:
         )
 
         return cadena
+
+    @staticmethod
+    def save(socio) -> bool:
+        """
+        Guarda el socio pasado por parametro en la tabla de la base de datos
+        :param socio: Socio que se desea guardar en la base de datos
+        :type socio: Socio
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
+        """
+
+        if not TablaSocios.validar_id(socio.socioID):
+            try:
+                cursor = TablaSocios.conn.cursor()
+                codigo = cursor.execute(
+                    """INSERT INTO Socios (nombre, apellido, dni, telefono, mail, direccion)
+                                        VALUES (?, ?, ?, ?, ?, ?)
+                                        returning socioID""",
+                    (
+                        socio.nombre,
+                        socio.apellido,
+                        socio.dni,
+                        socio.telefono,
+                        socio.mail,
+                        socio.direccion,
+                    ),
+                )
+                socio.socioID = codigo.fetchall()[0][0]
+                TablaSocios.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def create_socio(codigo: int):
+        """
+        Permite acceder a un registro de la tabla e instanciarlo como un objeto de la clase Socio
+        :param codigo: Codigo del registro que se esta buscando
+        :type codigo: int
+        :return: Devuelve el objeto Socio ya instanciado
+        sin volverlo a almacenar en la base de datos
+        """
+        #! Para evitar la importacion ciclica
+        from NG_socio import Socio
+
+        if TablaSocios.validar_id(codigo):
+            registro = TablaSocios.show_socio(codigo)
+
+            if registro:
+                socio = Socio(
+                    registro[0][1],
+                    registro[0][2],
+                    registro[0][3],
+                    registro[0][4],
+                    registro[0][5],
+                    registro[0][6],
+                    crear=False,
+                )
+                socio.socioID = registro[0][0]
+
+                resultado = socio
+        else:
+            resultado = False
+
+        return resultado
 
     @staticmethod
     def show_table(*campos: tuple):
@@ -76,38 +147,6 @@ class TablaSocios:
                 cursor.close()
 
         return resultado
-
-    @staticmethod
-    def validar_campos(campos: tuple) -> bool:
-        """
-        Valida que los campos pasados como parametros pertenezcan a la tabla
-        :param campos: Contiene valores en formato str
-        a ser validados como los nombres de los campos de la tabla
-        :type campos: tuple
-        :return: Devuelve un True en caso de que todos los valores
-        sean exactamente iguales / pertenezcan a los campos de la tabla
-        :rtype: bool
-        """
-
-        existen = (
-            [
-                campo
-                in (
-                    "socioID",
-                    "nombre",
-                    "apellido",
-                    "dni",
-                    "telefono",
-                    "mail",
-                    "direccion",
-                )
-                for campo in campos
-            ]
-            if len(campos) > 0
-            else [False]
-        )
-
-        return all(existen)
 
     @staticmethod
     def show_socio(valor, campo: str = "socioID") -> list:
@@ -154,41 +193,6 @@ class TablaSocios:
     # Por ejemplo:
     #   SELECT id,nombre,telefono FROM Socios ORDER BY nombre
     #   SELECT id,nombre,COUNT(*) FROM Socios ORDER BY id DESC
-
-    @staticmethod
-    def save(socio) -> bool:
-        """
-        Guarda el socio pasado por parametro en la tabla de la base de datos
-        :param socio: Socio que se desea guardar en la base de datos
-        :type socio: Socio
-        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
-        :rtype: bool
-        """
-
-        try:
-            cursor = TablaSocios.conn.cursor()
-            codigo = cursor.execute(
-                """INSERT INTO Socios (nombre, apellido, dni, telefono, mail, direccion)
-                                       VALUES (?, ?, ?, ?, ?, ?)
-                                       returning socioID""",
-                (
-                    socio.nombre,
-                    socio.apellido,
-                    socio.dni,
-                    socio.telefono,
-                    socio.mail,
-                    socio.direccion,
-                ),
-            )
-            socio.socioID = codigo.fetchall()[0][0]
-            TablaSocios.conn.commit()
-            resultado = True
-        except Error:
-            resultado = False
-        finally:
-            cursor.close()
-
-        return resultado
 
     @staticmethod
     def update_socio(
@@ -262,6 +266,38 @@ class TablaSocios:
             resultado = False
 
         return resultado
+
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
+        """
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
+        """
+
+        existen = (
+            [
+                campo
+                in (
+                    "socioID",
+                    "nombre",
+                    "apellido",
+                    "dni",
+                    "telefono",
+                    "mail",
+                    "direccion",
+                )
+                for campo in campos
+            ]
+            if len(campos) > 0
+            else [False]
+        )
+
+        return all(existen)
 
     @staticmethod
     def validar_id(codigo: int) -> bool:

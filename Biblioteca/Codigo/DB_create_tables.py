@@ -2,7 +2,7 @@ from sqlite3 import Error
 from DB_conexion import DBConnection
 
 def create_tables():
-    conn = DBConnection("biblioteca.db").dbconnection
+    conn = DBConnection().dbconnection
     cursor = conn.cursor()
     resultado = ''
 

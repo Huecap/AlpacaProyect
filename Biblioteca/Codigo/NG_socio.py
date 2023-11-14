@@ -2,16 +2,12 @@
 Objeto socio
 """
 
-from datetime import date, timedelta
-from PR_observers import Sujeto
-from HR_validaciones import validar_entero, validar_string
+from datetime import date
 from DB_tabla_socios import TablaSocios
-from DB_tabla_prestamos import TablaPrestamos
+from HR_validaciones import validar_entero, validar_string
 
 
-#! Hay que definir como instanciar los objetos a partir de la base de datos
-#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
-class Socio(Sujeto):
+class Socio:
     """
     Clase que representa un socio
     """
@@ -24,6 +20,7 @@ class Socio(Sujeto):
         telefono: int,
         mail: str,
         direccion: str,
+        crear=True,
     ) -> None:
         super().__init__()  # Heredemos de la clase Subject del modulo observer
         self._nombre = nombre
@@ -34,7 +31,8 @@ class Socio(Sujeto):
         self._direccion = direccion
         self._prestamos = []
         self._socioID = None
-        self.guardar_socio()
+        if crear:
+            self.guardar_socio()
 
     @property
     def nombre(self) -> str:
@@ -179,6 +177,24 @@ class Socio(Sujeto):
 
     # --- Metodos --- #
 
+    def __str__(self) -> str:
+        cadena = f"\nNombre:    {self._nombre} \n"
+        cadena += f"Apellido:  {self._apellido}\n"
+        cadena += f"Dni:       {self._dni}\n"
+        cadena += f"Telefono:  {self._telefono}\n"
+        cadena += f"Mail:      {self._mail}\n"
+        cadena += f"Dirección: {self._direccion}\n"
+        cadena += f"Id:        {self._socioID}\n"
+        for prestamo in self._prestamos:
+            cadena += f"{prestamo}"
+        return cadena
+
+    def guardar_socio(self):
+        """
+        Guardar el socio en la tabla Socios de la base de datos
+        """
+        TablaSocios.save(self)
+
     def nuevo_prestamo(self, libro, cantidadDias):
         """
         Crear un nuevo prestamo del socio
@@ -192,15 +208,13 @@ class Socio(Sujeto):
         #! Para evitar la importacion ciclica
         from NG_prestamo import Prestamo
 
-        if len(self._prestamos) <= 3:
-            fechaPrestamo = date.today()  # nos toma la fecha actual
-            delta = timedelta(
-                days=cantidadDias
-            )  # Definimos el intervalo de tiempo para poder operar con este
+        if len(self._prestamos) < 3:
+            # Toma la fecha actual
+            fechaPrestamo = date.today()
+            # Definimos el intervalo de tiempo para poder operar con este
+            #! delta = timedelta(days=cantidadDias)
             # Creamos el objeto Prestamo
-            # TODO: Verificar luego de corregir NG_prestamo # Pana
-            prestamo = Prestamo(fechaPrestamo, delta, self._socioID, libro)
-            TablaPrestamos.save(prestamo)
+            prestamo = Prestamo(fechaPrestamo, cantidadDias, self, libro)
             # Agremos el prestamo al Socio
             self._prestamos.append(prestamo)
 
@@ -217,18 +231,3 @@ class Socio(Sujeto):
         prestamo.modificar_estado(3)
         self._prestamos.remove(prestamo)
         return "La devolucion se registro con Exito"
-
-    def guardar_socio(self):
-        TablaSocios.save(self)
-
-    def __str__(self) -> str:
-        cadena = f"Nombre: {self._nombre} \n"
-        cadena += f"Apellido: {self._apellido}\n"
-        cadena += f"Dni: {self._dni}\n"
-        cadena += f"Telefono: {self._telefono}\n"
-        cadena += f"Mail: {self._mail}\n"
-        cadena += f"Dirección: {self._direccion}\n"
-        cadena += f"Id: {self._socioID}\n"
-        for prestamo in self._prestamos:
-            cadena += f"{prestamo}"
-        return cadena

@@ -2,13 +2,21 @@
 Dar formato str a diferentes estructuras
 """
 
-def listado_list_tuple(lista: list, orden=0, *encabezado) -> str:
+def listado_list_tuple(lista: list, orden=False, *encabezado) -> str:
     """
-    Estructura en formato listado str una lista que contiene tuplas
-    :param lista: 
+    Estructura en formato listado str de una lista que contiene tuplas
+    :param lista: Lista de tuplas donde cada tupla es un conjunto de datos de una entidad
+    :type lista: list
+    :param orden: Indica si las filas se amoldaran a las demas automaticamente
+    :type orden: bool
+    :param encabezado: Encabezados que se peuden poner al formato lista
+    :type encabezado: tuple
+    :return: Devuelve una cadena donde
+    se formateo toda la lista de tuplas como una lista de elementos
+    :rtype: str
     """
     cadena = ''
-    if orden == 1:
+    if orden:
         may = len_mayor_list_tuple(lista)
     else:
         may = 0
@@ -25,9 +33,21 @@ def listado_list_tuple(lista: list, orden=0, *encabezado) -> str:
     return cadena
 
 
-def cuadro_list_tuple(lista: list, orden=0, *encabezado) -> str:
+def tabla_list_tuple(lista: list, orden=False, *encabezado) -> str:
+    """
+    Estructura en formato tabla str de una lista que contiene tuplas
+    :param lista: Lista de tuplas donde cada tupla es un conjunto de datos de una entidad
+    :type lista: list
+    :param orden: Indica si las filas se amoldaran a las demas automaticamente
+    :type orden: bool
+    :param encabezado: Encabezados que se peuden poner al formato tabla
+    :type encabezado: tuple
+    :return: Devuelve una cadena donde
+    se formateo toda la lista de tuplas como una tabla de elementos
+    :rtype: str
+    """
     cadena = ''
-    if orden == 1:
+    if orden:
         may = len_mayor_list_tuple(lista)
     else:
         may = 0
@@ -44,6 +64,13 @@ def cuadro_list_tuple(lista: list, orden=0, *encabezado) -> str:
     return cadena
 
 def len_mayor_list_tuple(lista: list) -> int:
+    """
+    Calcula el elemento de mayor tamaño de la lista de tuplas
+    :param lista: Lista de tuplas donde cada tupla es un conjunto de datos de una entidad
+    :type lista: list
+    :return: tamaño del elemento con mayor longitud
+    :rtype: int
+    """
     may = 0
 
     for tupla in lista:
@@ -54,6 +81,15 @@ def len_mayor_list_tuple(lista: list) -> int:
     return may
 
 def armar_encabezado(campos, espaciado):
+    """
+    Formatea los encabezados con un espaciado especifico
+    :param campos: Campos que representan cada columna
+    :type campos: tuple
+    :param espaciado: Espaciado que se pondra dentro de cada campo para igualar sus tamaños
+    :type espaciado: int
+    :return: Devuelve una cadena con los encabezados formateados
+    :rtype: str
+    """
     cadena = ''
     if len(campos) > 0:
         may = espaciado
@@ -70,11 +106,11 @@ if __name__ == "__main__":
 
     #? Otros formatos:
     # print(listado_list_tuple(personas))
-    # print(cuadro_list_tuple(personas))
-    # print(listado_list_tuple(personas, 1))
-    # print(cuadro_list_tuple(personas, 1))
-    # print(listado_list_tuple(personas, 0, 'Nombre', 'Apellido', 'DNI'))
-    # print(cuadro_list_tuple(personas, 0, 'Nombre', 'Apellido', 'DNI'))
-    # print(listado_list_tuple(personas, 1, 'Nombre', 'Apellido', 'DNI'))
+    # print(tabla_list_tuple(personas))
+    # print(listado_list_tuple(personas, True))
+    # print(tabla_list_tuple(personas, True))
+    # print(listado_list_tuple(personas, False, 'Nombre', 'Apellido', 'DNI'))
+    # print(tabla_list_tuple(personas, False, 'Nombre', 'Apellido', 'DNI'))
+    # print(listado_list_tuple(personas, True, 'Nombre', 'Apellido', 'DNI'))
     #! RECOMENDADO:
-    print(cuadro_list_tuple(personas, 1, 'Nombre', 'Apellido', 'DNI'))
+    print(tabla_list_tuple(personas, True, 'Nombre', 'Apellido', 'DNI'))

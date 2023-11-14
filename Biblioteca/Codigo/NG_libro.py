@@ -2,18 +2,16 @@
 Objeto libro
 """
 
-from HR_validaciones import validar_entero, validar_flotante, validar_string
 from DB_tabla_libros import TablaLibros
+from HR_validaciones import validar_entero, validar_flotante, validar_string
 
 
-#! Hay que definir como instanciar los objetos a partir de la base de datos
-#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
 class Libro:
     """
     Clase que representa un libro
     """
 
-    def __init__(self, titulo: str, precio: float) -> None:
+    def __init__(self, titulo: str, precio: float, crear=True) -> None:
         """_summary_
 
         :param titulo: Titulo del libro
@@ -25,7 +23,8 @@ class Libro:
         self._titulo = titulo
         self._estado = "Disponible"
         self._precio = precio
-        self.guardar_libro()
+        if crear:
+            self.guardar_libro()
 
     # Getters
 
@@ -116,10 +115,10 @@ class Libro:
         :return: Cadena de caracteres con la información del obejto libro
         :rtype: str
         """
-        cadena = f"Codigo: {self._codigo} - "
+        cadena = f"\nCodigo: {self._codigo} - "
         cadena += f"Titulo: {self._titulo} - "
         cadena += f"Estado: {self._estado} - "
-        cadena += f"Precio: {self._precio}"
+        cadena += f"Precio: {self._precio}\n"
         return cadena
 
     # TODO: Validaciones de los campos de la clase # Pana

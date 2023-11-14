@@ -1,20 +1,24 @@
 from datetime import datetime, date
-from NG_libro import Libro
-from NG_socio import Socio
-from PR_observers import Observer
+from DB_tabla_prestamos import TablaPrestamos
 from HR_validaciones import (
     validar_entero,
     validar_string,
     validar_fecha,
 )
-from DB_tabla_prestamos import TablaPrestamos
+from NG_libro import Libro
+from NG_socio import Socio
+from PR_observers import Observer
 
 
-#! Hay que definir como instanciar los objetos a partir de la base de datos
-#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
+#! Observer de la Ventana Prestamos
 class Prestamo(Observer):
     def __init__(
-        self, fechaPrestamo: datetime, cantidadDias: int, socio: Socio, libro: Libro
+        self,
+        fechaPrestamo: datetime,
+        cantidadDias: int,
+        socio: Socio,
+        libro: Libro,
+        crear=True,
     ) -> None:
         self._codigo = None
         self._fechaPrestamo = fechaPrestamo
@@ -24,7 +28,8 @@ class Prestamo(Observer):
         self._socio = socio
         self._libro = libro
         self.libro.modificar_estado(1)
-        self.guardar_prestamo()
+        if crear:
+            self.guardar_prestamo()
 
     @property
     def codigo(self) -> int:
@@ -125,6 +130,24 @@ class Prestamo(Observer):
             self._libro = libro
 
     # --- Metodos --- #
+
+    def __str__(self) -> str:
+        cadena = f"\n> --- Infomracion del Prestamo: codigo {self._codigo}\n"
+        cadena += f"> --- Libro Prestado{self._libro}"
+        cadena += "> --- Datos sobre prestamo\n"
+        cadena += f"Fecha del prestamo:  {self._fechaPrestamo}\n"
+        cadena += f"Cantidad de días:    {self._cantidadDias}\n"
+        cadena += f"Fecha de devolucion: {self._fechaDevolucion}\n"
+        cadena += f"Estado: {self._estado}\n"
+        cadena += f"socioID: {self._socio.socioID}\n"
+        return cadena
+
+    def guardar_prestamo(self):
+        """
+        Guardar prestamo en la base de datos
+        """
+        TablaPrestamos.save(self)
+
     def fecha_prestamo_string(self):
         """
         Obtenemos la fecha de prestamo en formato "Año - Mes - Día"
@@ -158,12 +181,6 @@ class Prestamo(Observer):
                 self.estado = "Extraviado"
                 self._libro.modificar_estado(3)
 
-    def guardar_prestamo(self):
-        """
-        Guardar prestamo en la base de datos
-        """
-        TablaPrestamos.save(self)
-
     # --- Métodos de observer ---- #
 
     def update(self):  # Metodo para update de observers
@@ -179,14 +196,3 @@ class Prestamo(Observer):
                 self.modificar_estado(4)
             else:
                 self.modificar_estado(2)
-
-    def __str__(self) -> str:
-        cadena = "----Infomracion de Prestamo----\n"
-        cadena += f"-Libro Prestado-\n{self._libro} \n"
-        cadena += "-Datos sobre prestamo-\n"
-        cadena += f"Fecha prestamo: {self._fechaPrestamo}\n"
-        cadena += f"Cantidad días: {self._cantidadDias}\n"
-        cadena += f"Fecha Devolucion: {self._fechaDevolucion}\n"
-        cadena += f"Estado: {self._estado}\n"
-        cadena += f"socioID: {self._socio.socioID}\n"
-        return cadena
