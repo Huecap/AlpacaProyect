@@ -4,87 +4,154 @@ Tabla de socios
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
+from NG_socio import Socio
 
 
-class TablaSocios(DBConnection):
+class TablaSocios:
     """
     Clase que representa y se comunica con la Tabla Socios de la base de datos
     """
 
     conn = DBConnection("biblioteca.db").dbconnection
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            """CREATE TABLE IF NOT EXIST Socios
-                        (socioID INTEGER PRIMARY KEY,
-                        nombre VARCHAR,
-                        apellido VARCHAR,
-                        dni INTEGER,
-                        telefono INTEGER,
-                        mail TEXT,
-                        direccion TEXT)"""
-        )
-    except Error as er:
-        print(er)
 
-    def __str__(self):
-        cadena = "|---|---|---|\n"
-        socios = self.show_table()
-        for reg in socios:
+    #! ELIMINAR
+    @staticmethod
+    def __str__() -> str:
+        """
+        Muestra de forma simple la tabla completa
+        :return: Una cadena de caracteres que
+        lista cada registro de la tabla Socios de la base de datos
+        :rtype: str
+        """
+
+        cadena = "> ------------------------- +\n"
+        socio = TablaSocios.show_table()
+        for reg in socio:
             cadena += f"{reg}\n"
-        cadena += "|---|---|---|\n"
+        cadena += "> ------------------------- +\n"
+
         return cadena
 
-    def show_table(self) -> list:
+    @staticmethod
+    def show_table(*campos: tuple):
         """
-        Descripcion
-        :return: Una lista de tuplas que contienen los datos de cada registro
-        :rtype: list
+        Trae de la base de datos todos los registros de la tabla
+        o solo los campos/columnas deseados y especificados por parametro
+        :param campos: Contiene los campos deseados a seleccionar
+        o vacia en caso de querer seleccionar todos los campos
+        :type campos: tuple
+        :return: Devuelve los registros seleccionados
+        en caso de que los campos especificados sean correctos
+        :rtype: ??
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""SELECT * FROM Socios""")
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+
+        seleccion = ""
+        resultado = None
+
+        if not TablaSocios.validar_campos(campos) and len(campos) != 0:
+            resultado = False
+        else:
+            if len(campos) == 0:
+                seleccion = "*"
+            elif TablaSocios.validar_campos(campos):
+                for elem in campos:
+                    seleccion += f"{elem},"
+                seleccion = seleccion[:-1]
+
+            try:
+                cursor = TablaSocios.conn.cursor()
+                # Se valida previamente el valor de 'seleccion' para evitar SQLI
+                cursor.execute(f"SELECT {seleccion} FROM Socios")
+                resultado = cursor.fetchall()
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
 
         return resultado
 
-    def show_socio(self, identificador: int) -> tuple:
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
         """
-        Descripcion
-        :param identificador: ID del socio que se esta buscando
-        :type identificador: int
-        :return: Una tupla que contiene los datos del registro encontrado
-        :rtype: tuple
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """SELECT nombre, apellido, dni, telefono, mail, direccion
-                              FROM Socios
-                              WHERE socioID=?""",
-                (identificador,),
-            )
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+
+        existen = (
+            [
+                campo
+                in (
+                    "socioID",
+                    "nombre",
+                    "apellido",
+                    "dni",
+                    "telefono",
+                    "mail",
+                    "direccion",
+                )
+                for campo in campos
+            ]
+            if len(campos) > 0
+            else [False]
+        )
+
+        return all(existen)
+
+    @staticmethod
+    def show_socio(socioID: int):
+        """
+        Trae de la base de datos el registro de la tabla especificados por parametro
+        :param socioID: socioID del socio que se esta buscando
+        :type socioID: int
+        :return: Devuelve los datos del registro encontrado
+        o un False en caso de no encontrar ningun registro
+        :rtype: ??
+        """
+
+        if TablaSocios.validar_id(socioID):
+            try:
+                cursor = TablaSocios.conn.cursor()
+                cursor.execute(
+                    """SELECT socioID, nombre, apellido, dni, telefono, mail, direccion
+                                FROM Socios
+                                WHERE socioID=?""",
+                    (socioID,),
+                )
+                resultado = cursor.fetchall()
+            except Error:
+                resultado = (False,)
+            finally:
+                cursor.close()
+        else:
+            resultado = (False,)
 
         return resultado[0]
 
-    def save(self, socio) -> None:
+    # Pana
+    # REPORTES
+    # Crear metodos con SELECT para crear los reportes
+    # Por ejemplo:
+    #   SELECT id,nombre,telefono FROM Socios ORDER BY nombre
+    #   SELECT id,nombre,COUNT(*) FROM Socios ORDER BY id DESC
+
+    @staticmethod
+    def save(socio: Socio) -> bool:
         """
-        Descripcion
+        Guarda el socio pasado por parametro en la tabla de la base de datos
         :param socio: Socio que se desea guardar en la base de datos
         :type socio: Socio
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
+
         try:
-            cursor = self.conn.cursor()
-            identificador = cursor.execute(
+            cursor = TablaSocios.conn.cursor()
+            codigo = cursor.execute(
                 """INSERT INTO Socios (nombre, apellido, dni, telefono, mail, direccion)
                                        VALUES (?, ?, ?, ?, ?, ?)
                                        returning socioID""",
@@ -97,66 +164,100 @@ class TablaSocios(DBConnection):
                     socio.direccion,
                 ),
             )
-            socio.socioId = identificador
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
+            socio.socioID = codigo.fetchall()[0][0]
+            TablaSocios.conn.commit()
+            resultado = True
+        except Error:
+            resultado = False
         finally:
             cursor.close()
 
+        return resultado
+
+    @staticmethod
     def update_socio(
-        self,
         nombre: str,
         apellido: str,
         dni: int,
         telefono: int,
         mail: str,
         direccion: str,
-        identificador: int,
-    ) -> None:
+        socioID: int,
+    ) -> bool:
         """
-        Descripcion
+        Modifica un registro de la tabla Socios
         :param nombre: Nombre nuevo del socio a actualizar
         :type nombre: str
         :param apellido: Apellido nuevo del socio a actualizar
         :type apellido: str
         :param dni: DNI nuevo del socio a actualizar
         :type dni: int
-        :param telefono: Telefono nuevo del socio a actualizar
+        :param telefono: Telefono del socio a actualizar
         :type telefono: int
         :param mail: Mail nuevo del socio a actualizar
         :type mail: str
-        :param direccion: Direccion nueva del socio a actualizar
+        :param direccion: Direccion nuevo del socio a actualizar
         :type direccion: str
-        :param identificador: ID del socio a actualizar
-        :type identificador: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """UPDATE Socios
-                              SET nombre=?, apellido=?, dni=?, telefono=?, mail=?, direccion=?
-                              WHERE socioID=?""",
-                (nombre, apellido, dni, telefono, mail, direccion, identificador),
-            )
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
-        finally:
-            cursor.close()
 
-    def delete_libro(self, identificador: int) -> None:
+        if TablaSocios.validar_id(socioID):
+            try:
+                cursor = TablaSocios.conn.cursor()
+                cursor.execute(
+                    """UPDATE Socios
+                                SET nombre=?, apellido=?, dni=?, telefono=?, mail=?, direccion=?
+                                WHERE socioID=?""",
+                    (nombre, apellido, dni, telefono, mail, direccion, socioID),
+                )
+                TablaSocios.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def delete_socio(socioID: int) -> bool:
         """
-        Descripcion
-        :param identificador: ID del socio a eliminar
-        :type identificador: int
+        Eliminar un registro de la tabla Socios
+        :param socioID: socioID del socio a eliminar
+        :type socioID: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""DELETE FROM Socios WHERE socioID=?""", (identificador,))
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
+
+        if TablaSocios.validar_id(socioID):
+            try:
+                cursor = TablaSocios.conn.cursor()
+                cursor.execute("""DELETE FROM Socios WHERE socioID=?""", (socioID,))
+                TablaSocios.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def validar_id(codigo: int) -> bool:
+        """
+        Valida que el codigo pasado como parametro pertenezca a un registro de la tabla
+        :param codigo: Entero a ser validado como un codigo de un registro de la tabla Socios
+        :type codigo: int
+        :return: Devuelve un True en caso de que el valor sea un codigo de un registro de la tabla
+        :rtype: bool
+        """
+
+        lista_ids = TablaSocios.show_table("socioID")
+        var = [tup[0] == codigo for tup in lista_ids]
+
+        return any(var)

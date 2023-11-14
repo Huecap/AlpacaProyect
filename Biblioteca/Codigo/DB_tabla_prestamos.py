@@ -4,165 +4,272 @@ Tabla de prestamos
 
 from sqlite3 import Error
 from datetime import datetime
-from conexion import DBConnection
+from DB_conexion import DBConnection
 
 
-class TablaPrestamos(DBConnection):
+#! Revisar y probar luego de hacer NG_prestamo
+class TablaPrestamos:
     """
     Clase que representa y se comunica con la Tabla Prestamos de la base de datos
     """
 
     conn = DBConnection("biblioteca.db").dbconnection
-    try:
-        cursor = conn.cursor()
-        # Foreign kays: libroCodigo & socioID
-        cursor.execute(
-            """CREATE TABLE IF NOT EXIST Prestamos
-                        (id INTEGER PRIMARY KEY,
-                        fechaPrestamo DATETIME,
-                        cantidadDias INTEGER,
-                        estado VARCHAR,
-                        socioID INTEGER,
-                        libroCodigo INTEGER,
-                        FOREIGN KEY (SocioID) REFERENCES Socios (SocioID),
-                        FOREIGN KEY (libroCodigo) REFERENCES Libros (codigo))"""
-        )
-    except Error as er:
-        print(er)
 
-    def __str__(self):
-        cadena = "|---|---|---|\n"
-        prestamos = self.show_table()
+    #! ELIMINAR
+    @staticmethod
+    def __str__() -> str:
+        """
+        Muestra de forma simple la tabla completa
+        :return: Una cadena de caracteres que
+        lista cada registro de la tabla Prestamos de la base de datos
+        :rtype: str
+        """
+
+        cadena = "> ------------------------- +\n"
+        prestamos = TablaPrestamos.show_table()
         for reg in prestamos:
             cadena += f"{reg}\n"
-        cadena += "|---|---|---|\n"
+        cadena += "> ------------------------- +\n"
+
         return cadena
 
-    def show_table(self) -> list:
+    @staticmethod
+    def show_table(*campos: tuple):
         """
-        Descripcion
-        :return: Una lista de tuplas que contienen los datos de cada registro
-        :rtype: list
+        Trae de la base de datos todos los registros de la tabla
+        o solo los campos/columnas deseados y especificados por parametro
+        :param campos: Contiene los campos deseados a seleccionar
+        o vacia en caso de querer seleccionar todos los campos
+        :type campos: tuple
+        :return: Devuelve los registros seleccionados
+        en caso de que los campos especificados sean correctos
+        :rtype: ??
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""SELECT * FROM Prestamos""")
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+
+        seleccion = ""
+        resultado = None
+
+        if not TablaPrestamos.validar_campos(campos) and len(campos) != 0:
+            resultado = False
+        else:
+            if len(campos) == 0:
+                seleccion = "*"
+            elif TablaPrestamos.validar_campos(campos):
+                for elem in campos:
+                    seleccion += f"{elem},"
+                seleccion = seleccion[:-1]
+
+            try:
+                cursor = TablaPrestamos.conn.cursor()
+                # Se valida previamente el valor de 'seleccion' para evitar SQLI
+                cursor.execute(f"SELECT {seleccion} FROM Prestamos")
+                resultado = cursor.fetchall()
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
 
         return resultado
 
-    def show_prestamo(self, identificador: int) -> tuple:
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
         """
-        Descripcion
-        :param identificador: ID del presatmos, socio o libro que se esta buscando
-        :type identificador: int
-        :return: Una tupla que contiene los datos del registro encontrado
-        :rtype: tuple
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """SELECT fechaPrestamo, cantidadDias, estado, socioID, libroCodigo
-                              FROM Prestamos
-                              WHERE id=? OR socioID=? OR libroCodigo=?""",
-                (identificador,),
-            )
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+
+        existen = (
+            [
+                campo
+                in (
+                    "codigo",
+                    "fechaPrestamo",
+                    "cantidadDias",
+                    "fechaDevolucion",
+                    "estado",
+                    "socioID",
+                    "libroCodigo",
+                )
+                for campo in campos
+            ]
+            if len(campos) > 0
+            else [False]
+        )
+
+        return all(existen)
+
+    @staticmethod
+    def show_prestamo(codigo: int):
+        """
+        Trae de la base de datos el registro de la tabla especificados por parametro
+        :param codigo: Codigo del prestamo que se esta buscando
+        :type codigo: int
+        :return: Devuelve los datos del registro encontrado
+        o un False en caso de no encontrar ningun registro
+        :rtype: ??
+        """
+
+        if TablaPrestamos.validar_codigo(codigo):
+            try:
+                cursor = TablaPrestamos.conn.cursor()
+                cursor.execute(
+                    """SELECT codigo, fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo
+                                FROM Prestamos
+                                WHERE codigo=?""",
+                    (codigo,),
+                )
+                resultado = cursor.fetchall()
+            except Error:
+                resultado = (False,)
+            finally:
+                cursor.close()
+        else:
+            resultado = (False,)
 
         return resultado[0]
 
-    # Crear metodo que devuelva los prestamos segun el estado # Pana
+    # Pana
+    # Crear metodo con SELECT que devuelva los prestamos segun el estado
+    # REPORTES
+    # Crear metodos con SELECT para crear los reportes
+    # Por ejemplo:
+    #   SELECT id,estado,socioID FROM Prestamos ORDER BY socioID
+    #   SELECT id,estado,COUNT(*) FROM Prestamos ORDER BY estado DESC
 
-    def save(self, prestamo) -> None:
+    @staticmethod
+    def save(prestamo) -> bool:
         """
-        Descripcion
-        :param prestamo: Prestamos que se desea guardar en la base de datos
+        Guarda el prestamo pasado por parametro en la tabla de la base de datos
+        :param prestamo: Prestamo que se desea guardar en la base de datos
         :type prestamo: Prestamo
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
+
         try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """INSERT INTO Prestamos (fechaPrestamo, cantidadDias, estado, socioID, libroCodigo)
-                                       VALUES (?, ?, ?, ?, ?)""",
+            cursor = TablaPrestamos.conn.cursor()
+            codigo = cursor.execute(
+                """INSERT INTO Prestamos (fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo)
+                                       VALUES (?, ?, ?, ?, ?, ?)
+                                       returning codigo""",
                 (
                     prestamo.fechaPrestamo,
                     prestamo.cantidadDias,
+                    prestamo.fechaDevolucion,
                     prestamo.estado,
                     prestamo.socioID,
                     prestamo.libroCodigo,
                 ),
             )
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
+            prestamo.codigo = codigo.fetchall()[0][0]
+            TablaPrestamos.conn.commit()
+            resultado = True
+        except Error:
+            resultado = False
         finally:
             cursor.close()
 
+        return resultado
+
+    @staticmethod
     def update_prestamo(
-        self,
         fechaPrestamo: datetime,
         cantidadDias: int,
+        fechaDevolucion: datetime,
         estado: str,
         socioID: int,
         libroCodigo: int,
-        identificador: int,
-    ) -> None:
+        codigo: int,
+    ) -> bool:
         """
-        Descripcion
-        :param fechaPrestamo: Fecha del prestamo nueva del prestamo a actualizar
+        Modifica un registro de la tabla Prestamos
+        :param fechaPrestamo: Fecha inicial del prestamo nueva del prestamo a actualizar
         :type fechaPrestamo: datetime
-        :param cantidadDias: Cantidad de dias nuevos del prestamo a actualizar
+        :param cantidadDias: Cantidad de dias nueva del prestamo a actualizar
         :type cantidadDias: int
+        :param fechaDevolucion: Fecha de devolucion nueva del prestamo a actualizar
+        :type fechaDevolucion: datetime
         :param estado: Estado nuevo del prestamo a actualizar
         :type estado: str
-        :param socioID: ID del socio nuevo del prestamo a actualizar
+        :param socioID: socioID nuevo del prestamo a actualizar
         :type socioID: int
-        :param socioCodigo: Codigo del libro nuevo del prestamo a actualizar
-        :type socioCodigo: int
-        :param identificador: ID del prestamo a actualizar
-        :type identificador: int
+        :param libroCodigo: libroCodigo nuevo del prestamo a actualizar
+        :type libroCodigo: int
+        :param codigo: Codigo del prestamo a actualizar
+        :type codigo: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """UPDATE Prestamos
-                              SET fechaPrestamo=?, cantidadDias=?, estado=?, socioID=?, libroCodigo=?
-                              WHERE id=?""",
-                (
-                    fechaPrestamo,
-                    cantidadDias,
-                    estado,
-                    socioID,
-                    libroCodigo,
-                    identificador,
-                ),
-            )
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
-        finally:
-            cursor.close()
 
-    def delete_prestamo(self, identificador: int) -> None:
+        if TablaPrestamos.validar_codigo(codigo):
+            try:
+                cursor = TablaPrestamos.conn.cursor()
+                cursor.execute(
+                    """UPDATE Prestamos
+                                SET fechaPrestamo=?, cantidadDias=?, fechaDevolucion=?, estado=?, socioID=?, libroCodigo=?
+                                WHERE codigo=?""",
+                    (
+                        fechaPrestamo,
+                        cantidadDias,
+                        fechaDevolucion,
+                        estado,
+                        socioID,
+                        libroCodigo,
+                        codigo,
+                    ),
+                )
+                TablaPrestamos.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def delete_prestamo(codigo: int) -> bool:
         """
-        Descripcion
-        :param identificador: ID del prestamo a eliminar
-        :type identificador: int
+        Eliminar un registro de la tabla Prestamos
+        :param codigo: Codigo del prestamo a eliminar
+        :type codigo: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""DELETE FROM Prestamos WHERE id=?""", (identificador,))
-            self.conn.commit()
-        except Error as er:
-            self.conn.rollback()
-            print(er)
+
+        if TablaPrestamos.validar_codigo(codigo):
+            try:
+                cursor = TablaPrestamos.conn.cursor()
+                cursor.execute("""DELETE FROM Prestamos WHERE codigo=?""", (codigo,))
+                TablaPrestamos.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def validar_codigo(codigo: int) -> bool:
+        """
+        Valida que el codigo pasado como parametro pertenezca a un registro de la tabla
+        :param codigo: Entero a ser validado como un codigo de un registro de la tabla Prestamos
+        :type codigo: int
+        :return: Devuelve un True en caso de que el valor sea un codigo de un registro de la tabla
+        :rtype: bool
+        """
+
+        lista_codigos = TablaPrestamos.show_table("codigo")
+        var = [tup[0] == codigo for tup in lista_codigos]
+
+        return any(var)

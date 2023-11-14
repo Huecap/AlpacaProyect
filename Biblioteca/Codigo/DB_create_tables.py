@@ -37,9 +37,10 @@ def create_tables():
         # Foreign kays: libroCodigo & socioID
         cursor.execute(
             """CREATE TABLE IF NOT EXISTS Prestamos
-                        (id INTEGER PRIMARY KEY,
+                        (codigo INTEGER PRIMARY KEY,
                         fechaPrestamo DATETIME,
                         cantidadDias INTEGER,
+                        fechaDevolucion DATETIME,
                         estado VARCHAR,
                         socioID INTEGER,
                         libroCodigo INTEGER,

@@ -1,28 +1,36 @@
 from datetime import datetime, date
 from NG_libro import Libro
 from PR_observers import Observer
-from HR_validaciones import validar_entero, validar_flotante, validar_string, validar_fecha
+from HR_validaciones import (
+    validar_entero,
+    validar_string,
+    validar_fecha,
+)
 
 
-class Prestamo( Observer):
-
+class Prestamo(Observer):
     def __init__(
         self,
-        libro: Libro, # libroCodigo: int # Pana 
-        # ? Huenu : Esto lo tenemos que poner como objeto ya que tiene que interactuar con el objeto, si ponemos el Id solo no tiene como conocerlo 
-        # ? Mi idea aca es: definir despues el metodo guardar prestamo en base de atos que te guarde el prestamo con el id del libro (en vez del objeto)
-        # ? Definir un metodo que sea cargar prestamo que busque en la base de datos el id del libro, lo instancie, e instancie el objeto prestamo referenciando a ese objeto libro 
         fechaPrestamo: datetime,
         cantidadDias: int,
         socioID: int,
+        libro: Libro
+        # ? Huenu : Esto lo tenemos que poner como objeto ya que tiene que interactuar con el objeto, si ponemos el Id solo no tiene como conocerlo
+        # ? Mi idea aca es: definir despues el metodo guardar prestamo en base de datos que te guarde el prestamo con el id del libro (en vez del objeto)
+        # ? Definir un metodo que sea cargar prestamo que busque en la base de datos el id del libro, lo instancie, e instancie el objeto prestamo referenciando a ese objeto libro
     ) -> None:
-        self._libro = libro
+        self._codigo = None
         self._fechaPrestamo = fechaPrestamo
         self._cantidadDias = cantidadDias
         self._fechaDevolucion = None
         self._estado = "En Fecha"
         self._socioID = socioID
+        self._libro = libro
         self.libro.modificar_estado(1)
+
+    @property
+    def codigo(self) -> int:
+        return self._codigo
 
     @property
     def libro(self) -> Libro:
@@ -45,71 +53,77 @@ class Prestamo( Observer):
         return self._estado
 
     @property
-    def socioId(self) -> int:
+    def socioID(self) -> int:
         return self._socioID
 
     @libro.setter
-    def libro(self, libro : Libro):
-        if type(libro) == Libro:
+    def libro(self, libro: Libro):
+        if isinstance(libro, Libro):
             self._libro = libro
 
     @fechaPrestamo.setter
-    def fechaPrestamo(self, fecha : date):
+    def fechaPrestamo(self, fecha: date):
         if validar_fecha(fecha):
             self._fechaPrestamo = fecha
 
+    @codigo.setter
+    def codigo(self, valor: int):
+        if validar_entero(valor):
+            self._codigo = int(valor)
+
     @cantidadDias.setter
-    def cantidadDias(self, cantidad : int):
+    def cantidadDias(self, cantidad: int):
         if validar_entero(cantidad):
             self._cantidadDias = int(cantidad)
 
     @fechaDevolucion.setter
-    def fechaDevolucion(self, fecha : date):
+    def fechaDevolucion(self, fecha: date):
         if validar_fecha(fecha):
             self._fechaDevolucion = fecha
 
     @estado.setter
-    def estado(self, estado : str):
+    def estado(self, estado: str):
         if validar_string(estado):
             self._estado = estado
 
-    @socioId.setter
-    def socioId(self, id : int):
-        if validar_entero(id):
-            self._socioID = int(id)
+    @socioID.setter
+    def socioID(self, identificador: int):
+        if validar_entero(identificador):
+            self._socioID = int(identificador)
 
     # --- Metodos --- #
     def fecha_prestamo_string(self):
         fecha = self._fechaPrestamo
-        cadena = fecha.strftime("%Y-%m-%d") # Obtenemos la fecha en formato "Año - Mes - Día"
+        cadena = fecha.strftime(
+            "%Y-%m-%d"
+        )  # Obtenemos la fecha en formato "Año - Mes - Día"
         return cadena
-    
+
     def prestamo_en_fecha(self):
         self._estado = "En Fecha"
         self._libro.modificar_estado(1)
-    
+
     def prestamo_vencido(self):
         self._estado = "Vencido"
         self._libro.modificar_estado(1)
-        
+
     def prestamo_devuelto(self):
-        self._estado = "Devuelto"  
-        self._libro.modificar_estado(2)      
+        self._estado = "Devuelto"
+        self._libro.modificar_estado(2)
         self._fechaDevolucion = date.today()
-        
+
     def prestamo_extraviado(self):
         self._estado = "Extraviado"
         self._libro.modificar_estado(3)
-    
-    
-    def modificar_estado(self, estado : int):
+
+    def modificar_estado(self, estado: int):
         """Modifica el estado del Prestamo
 
-        :param estado: Valor numérico que representa el estado del prestamo 
+        :param estado: Valor numérico que representa el estado del prestamo
             1 = Prestamo en Fecha
             2 = Prestamo vencido (es decir se paso de la cantidad de días establecidas para el prestamo pero es menor a 30)
-            3 = El prestamo fue devuelto 
-            4 = El prestamo no fue devuelto más de 30 días 
+            3 = El prestamo fue devuelto
+            4 = El prestamo no fue devuelto más de 30 días
         :type estado: int
         """
         if estado == 1:
@@ -120,36 +134,33 @@ class Prestamo( Observer):
             self.prestamo_devuelto()
         elif estado == 4:
             self.prestamo_extraviado()
-    
-    
-    def guardar_prestamo():
+
+    def guardar_prestamo(self):
         pass
-    
+
     # --- Métodos de observer ---- #
-    
-    def update(self):  # Metodo para update de observers 
+
+    def update(self):  # Metodo para update de observers
         """
-        Verifica si el prestamo se vencio , permite cambiar de estado al prestamo en caso que si 
-    
+        Verifica si el prestamo se vencio , permite cambiar de estado al prestamo en caso que si
+
         :param estado: _description_
         :type estado: _type_
         """
-        fecha_estimada = self._fechaPrestamo+self._cantidadDias
+        fecha_estimada = self._fechaPrestamo + self._cantidadDias
         if date.today() > fecha_estimada:
-            if (date.today()-fecha_estimada).day > 30:
-                self._modificar_estado(4)
+            if (date.today() - fecha_estimada).day > 30:
+                self.modificar_estado(4)
             else:
-                self._modificar_estado(2)
-
-        
+                self.modificar_estado(2)
 
     def __str__(self) -> str:
         cadena = "----Infomracion de Prestamo----\n"
         cadena += f"-Libro Prestado-\n{self._libro} \n"
         cadena += "-Datos sobre prestamo-\n"
         cadena += f"Fecha prestamo:{self._fechaPrestamo}\n"
-        cadena += f"Cantidad días:{self._cantidadDias.days}\n"
+        cadena += f"Cantidad días:{self._cantidadDias}\n"
         cadena += f"Fecha Devolucion:{self._fechaDevolucion}\n"
         cadena += f"Estado:{self._estado}\n"
-        cadena += f"SocioID:{self._socioID}\n"
+        cadena += f"socioID:{self._socioID}\n"
         return cadena

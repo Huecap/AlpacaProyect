@@ -4,6 +4,7 @@ Tabla de libros
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
+from NG_libro import Libro
 
 
 class TablaLibros:
@@ -13,109 +14,152 @@ class TablaLibros:
 
     conn = DBConnection("biblioteca.db").dbconnection
 
-    # Colocarle formato # Pana
-    def __str__(self):
-        cadena = "|---|---|---|\n"
-        libros = self.show_table()
+    #! ELIMINAR
+    @staticmethod
+    def __str__() -> str:
+        """
+        Muestra de forma simple la tabla completa
+        :return: Una cadena de caracteres que
+        lista cada registro de la tabla Libros de la base de datos
+        :rtype: str
+        """
+
+        cadena = "> ------------------------- +\n"
+        libros = TablaLibros.show_table()
         for reg in libros:
             cadena += f"{reg}\n"
-        cadena += "|---|---|---|\n"
+        cadena += "> ------------------------- +\n"
+
         return cadena
 
-    def show_table(self, *campos):
+    @staticmethod
+    def show_table(*campos: tuple):
         """
-        Descripcion
+        Trae de la base de datos todos los registros de la tabla
+        o solo los campos/columnas deseados y especificados por parametro
+        :param campos: Contiene los campos deseados a seleccionar
+        o vacia en caso de querer seleccionar todos los campos
+        :type campos: tuple
+        :return: Devuelve los registros seleccionados
+        en caso de que los campos especificados sean correctos
+        :rtype: ??
         """
-        aux = ""
+
+        seleccion = ""
         resultado = None
 
-        if not self.validar_show_table(campos) and len(campos) != 0:
-            resultado = 'Campos invalidos'
+        if not TablaLibros.validar_campos(campos) and len(campos) != 0:
+            resultado = False
         else:
             if len(campos) == 0:
-                aux = "*"
-            elif self.validar_show_table(campos):
+                seleccion = "*"
+            elif TablaLibros.validar_campos(campos):
                 for elem in campos:
-                    aux += f"{elem},"
-                aux = aux[:-1]
+                    seleccion += f"{elem},"
+                seleccion = seleccion[:-1]
 
             try:
-                cursor = self.conn.cursor()
-                cursor.execute("SELECT {} FROM Libros".format(aux))
+                cursor = TablaLibros.conn.cursor()
+                # Se valida previamente el valor de 'seleccion' para evitar SQLI
+                cursor.execute(f"SELECT {seleccion} FROM Libros")
                 resultado = cursor.fetchall()
-            except Error as er:
-                resultado = er
+            except Error:
+                resultado = False
             finally:
                 cursor.close()
 
         return resultado
 
-    def validar_show_table(self, tupla):
-        var = (
-            [campo in ("codigo", "titulo", "estado", "precio") for campo in tupla]
-            if len(tupla) > 0
+    @staticmethod
+    def validar_campos(campos: tuple) -> bool:
+        """
+        Valida que los campos pasados como parametros pertenezcan a la tabla
+        :param campos: Contiene valores en formato str
+        a ser validados como los nombres de los campos de la tabla
+        :type campos: tuple
+        :return: Devuelve un True en caso de que todos los valores
+        sean exactamente iguales / pertenezcan a los campos de la tabla
+        :rtype: bool
+        """
+
+        existen = (
+            [campo in ("codigo", "titulo", "estado", "precio") for campo in campos]
+            if len(campos) > 0
             else [False]
         )
-        return all(var)
 
-    def show_libro(self, codigo: int) -> tuple:
-        # RETORNAR EL ID # Pana
+        return all(existen)
+
+    @staticmethod
+    def show_libro(codigo: int):
         """
-        Descripcion
+        Trae de la base de datos el registro de la tabla especificados por parametro
         :param codigo: Codigo del libro que se esta buscando
         :type codigo: int
-        :return: Una tupla que contiene los datos del registro encontrado
-        :rtype: tuple
+        :return: Devuelve los datos del registro encontrado
+        o un False en caso de no encontrar ningun registro
+        :rtype: ??
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """SELECT codigo, titulo, estado, precio
-                              FROM Libros
-                              WHERE codigo=?""",
-                (codigo,),
-            )
-            resultado = cursor.fetchall()
-        except Error as er:
-            resultado = er
-        finally:
-            cursor.close()
+
+        if TablaLibros.validar_codigo(codigo):
+            try:
+                cursor = TablaLibros.conn.cursor()
+                cursor.execute(
+                    """SELECT codigo, titulo, estado, precio
+                                FROM Libros
+                                WHERE codigo=?""",
+                    (codigo,),
+                )
+                resultado = cursor.fetchall()
+            except Error:
+                resultado = (False,)
+            finally:
+                cursor.close()
+        else:
+            resultado = (False,)
 
         return resultado[0]
 
-    # Crear metodo con SELECT que devuelva los libros segun el estado # Pana
+    # Pana
+    # Crear metodo con SELECT que devuelva los libros segun el estado
     # REPORTES
-    # Crear metodos con SELECT para crear los reportes # Pana
+    # Crear metodos con SELECT para crear los reportes
     # Por ejemplo:
     #   SELECT id,nombre,autor FROM Libros ORDER BY nombre
     #   SELECT id,autor,COUNT(*) FROM Libros ORDER BY id DESC
 
-    def save(self, libro) -> None:
+    @staticmethod
+    def save(libro: Libro) -> bool:
         """
-        Descripcion
+        Guarda el liblo pasado por parametro en la tabla de la base de datos
         :param libro: Libro que se desea guardar en la base de datos
         :type libro: Libro
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
+
         try:
-            cursor = self.conn.cursor()
+            cursor = TablaLibros.conn.cursor()
             codigo = cursor.execute(
                 """INSERT INTO Libros (titulo, estado, precio)
                                        VALUES (?, ?, ?)
                                        returning codigo""",
                 (libro.titulo, libro.estado, libro.precio),
             )
-            libro.codigo = codigo
-            self.conn.commit()
-        except Error as er:
-            print(er)
+            libro.codigo = codigo.fetchall()[0][0]
+            TablaLibros.conn.commit()
+            resultado = True
+        except Error:
+            resultado = False
         finally:
             cursor.close()
 
-    def update_libro(
-        self, titulo: str, estado: str, precio: float, codigo: int
-    ) -> None:
+        return resultado
+
+    @staticmethod
+    def update_libro(titulo: str, estado: str, precio: float, codigo: int) -> bool:
         """
-        Descripcion
+        Modifica un registro de la tabla Libros
         :param titulo: Titulo nuevo del libro a actualizar
         :type titulo: str
         :param estado: Estado nuevo del libro a actualizar
@@ -124,30 +168,66 @@ class TablaLibros:
         :type precio: float
         :param codigo: Codigo del libro a actualizar
         :type codigo: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute(
-                """UPDATE Libros
-                              SET titulo=?, estado=?, precio=?
-                              WHERE codigo=?""",
-                (titulo, estado, precio, codigo),
-            )
-            self.conn.commit()
-        except Error as er:
-            print(er)
-        finally:
-            cursor.close()
 
-    def delete_libro(self, codigo: int) -> None:
+        if TablaLibros.validar_codigo(codigo):
+            try:
+                cursor = TablaLibros.conn.cursor()
+                cursor.execute(
+                    """UPDATE Libros
+                                SET titulo=?, estado=?, precio=?
+                                WHERE codigo=?""",
+                    (titulo, estado, precio, codigo),
+                )
+                TablaLibros.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def delete_libro(codigo: int) -> bool:
         """
-        Descripcion
+        Eliminar un registro de la tabla Libros
         :param codigo: Codigo del libro a eliminar
         :type codigo: int
+        :return: Devuelve un True o un False dependiendo si la consulta se realizo con exito o no
+        :rtype: bool
         """
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""DELETE FROM Libros WHERE codigo=?""", (codigo,))
-            self.conn.commit()
-        except Error as er:
-            print(er)
+
+        if TablaLibros.validar_codigo(codigo):
+            try:
+                cursor = TablaLibros.conn.cursor()
+                cursor.execute("""DELETE FROM Libros WHERE codigo=?""", (codigo,))
+                TablaLibros.conn.commit()
+                resultado = True
+            except Error:
+                resultado = False
+            finally:
+                cursor.close()
+        else:
+            resultado = False
+
+        return resultado
+
+    @staticmethod
+    def validar_codigo(codigo: int) -> bool:
+        """
+        Valida que el codigo pasado como parametro pertenezca a un registro de la tabla
+        :param codigo: Entero a ser validado como un codigo de un registro de la tabla Libros
+        :type codigo: int
+        :return: Devuelve un True en caso de que el valor sea un codigo de un registro de la tabla
+        :rtype: bool
+        """
+
+        lista_codigos = TablaLibros.show_table("codigo")
+        var = [tup[0] == codigo for tup in lista_codigos]
+
+        return any(var)

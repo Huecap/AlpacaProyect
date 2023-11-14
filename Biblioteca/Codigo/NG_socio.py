@@ -24,7 +24,7 @@ class Socio(Sujeto):
         self._mail = mail
         self._direccion = direccion
         self._prestamos = []
-        self._socioId = None # socioID # Pana
+        self._socioID = None # socioID # Pana
 
     @property
     def nombre(self) -> str:
@@ -55,8 +55,8 @@ class Socio(Sujeto):
         return self._prestamos
 
     @property
-    def socioId(self) -> int:
-        return self._socioId
+    def socioID(self) -> int:
+        return self._socioID
 
     @nombre.setter
     def nombre(self, nombre : str):
@@ -125,8 +125,8 @@ class Socio(Sujeto):
         if validar_string(direccion):
             self._direccion = direccion
 
-    @socioId.setter
-    def socioId(self, id : int):
+    @socioID.setter
+    def socioID(self, id : int):
         """
         Metodo setter para el atributo self._
 
@@ -134,7 +134,7 @@ class Socio(Sujeto):
         :type id: int
         """
         if validar_entero(id):
-            self._socioId = id # Pana
+            self._socioID = id # Pana
 
     # --- Metodos --- #
     
@@ -143,7 +143,7 @@ class Socio(Sujeto):
             fechaPrestamo = date.today()  # nos toma la fecha actual
             delta = timedelta(days=cantidadDias)  # Definimos el intervalo de tiempo para poder operar con este
             # Creamos el objeto Prestamo
-            prestamo = Prestamo(libro, fechaPrestamo, delta, socioID=self._socioId)
+            prestamo = Prestamo(libro, fechaPrestamo, delta, socioID=self._socioID)
             # Agremos el prestamo el Socio
             self._prestamos.append(prestamo)
 
@@ -170,7 +170,7 @@ class Socio(Sujeto):
         cadena += f"Telefono {self._telefono}\n"
         cadena += f"Mail: {self._mail}\n"
         cadena += f"Dirección: {self._direccion}\n"
-        cadena += f"Id: {self._socioId}\n"
+        cadena += f"Id: {self._socioID}\n"
         for prestamo in self._prestamos: cadena += f"{prestamo}"
         return cadena
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     libro = Libro('Harry popoter', 1000)
     libro.codigo = 1111
     
-    socio1.socioId = 1
+    socio1.socioID = 1
     print()
     print(socio1.nuevo_prestamo(libro, 10))
     print(socio1)
