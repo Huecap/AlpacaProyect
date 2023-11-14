@@ -4,7 +4,6 @@ Tabla de socios
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
-from NG_socio import Socio
 
 
 class TablaSocios:
@@ -103,34 +102,43 @@ class TablaSocios:
         return all(existen)
 
     @staticmethod
-    def show_socio(socioID: int):
+    def show_socio(valor, campo: str = "socioID") -> list:
         """
-        Trae de la base de datos el registro de la tabla especificados por parametro
-        :param socioID: socioID del socio que se esta buscando
-        :type socioID: int
-        :return: Devuelve los datos del registro encontrado
+        Busca en la tabla Socios por campo especificado por parametro,
+        un registro especifico o varios
+        :param valor: Valor del campo por el cual se esta buscando
+        :type valor: any
+        :param campo: Campo por el cual se desea buscar en la tabla Socios. Por defecto 'socioID'
+        :type campo: str
+        :return: Devuelve los datos de los registros encontrados
         o un False en caso de no encontrar ningun registro
         :rtype: ??
         """
 
-        if TablaSocios.validar_id(socioID):
-            try:
-                cursor = TablaSocios.conn.cursor()
-                cursor.execute(
-                    """SELECT socioID, nombre, apellido, dni, telefono, mail, direccion
-                                FROM Socios
-                                WHERE socioID=?""",
-                    (socioID,),
-                )
-                resultado = cursor.fetchall()
-            except Error:
-                resultado = (False,)
-            finally:
-                cursor.close()
+        # Valida que el campo seleccionado exista en la tabla
+        if TablaSocios.validar_campos((campo,)):
+            # Si el campo seleccionado es codigo,
+            # valida que valor sea un codigo existente en la tabla
+            if campo == "socioID" and not TablaSocios.validar_id(valor):
+                resultado = False
+            else:
+                try:
+                    cursor = TablaSocios.conn.cursor()
+                    cursor.execute(
+                        f"""SELECT socioID, nombre, apellido, dni, telefono, mail, direccion
+                                    FROM Socios
+                                    WHERE {campo}
+                                    LIKE '%{valor}%'"""
+                    )
+                    resultado = cursor.fetchall()
+                except Error:
+                    resultado = False
+                finally:
+                    cursor.close()
         else:
-            resultado = (False,)
+            resultado = False
 
-        return resultado[0]
+        return resultado
 
     # Pana
     # REPORTES
@@ -140,7 +148,7 @@ class TablaSocios:
     #   SELECT id,nombre,COUNT(*) FROM Socios ORDER BY id DESC
 
     @staticmethod
-    def save(socio: Socio) -> bool:
+    def save(socio) -> bool:
         """
         Guarda el socio pasado por parametro en la tabla de la base de datos
         :param socio: Socio que se desea guardar en la base de datos

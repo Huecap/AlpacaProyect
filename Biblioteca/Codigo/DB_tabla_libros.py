@@ -4,7 +4,6 @@ Tabla de libros
 
 from sqlite3 import Error
 from DB_conexion import DBConnection
-from NG_libro import Libro
 
 
 class TablaLibros:
@@ -91,34 +90,43 @@ class TablaLibros:
         return all(existen)
 
     @staticmethod
-    def show_libro(codigo: int):
+    def show_libro(valor, campo: str = "codigo") -> list:
         """
-        Trae de la base de datos el registro de la tabla especificados por parametro
-        :param codigo: Codigo del libro que se esta buscando
-        :type codigo: int
-        :return: Devuelve los datos del registro encontrado
+        Busca en la tabla Libros por campo especificado por parametro,
+        un registro especifico o varios
+        :param valor: Valor del campo por el cual se esta buscando
+        :type valor: any
+        :param campo: Campo por el cual se desea buscar en la tabla Libros. Por defecto 'codigo'
+        :type campo: str
+        :return: Devuelve los datos de los registros encontrados
         o un False en caso de no encontrar ningun registro
         :rtype: ??
         """
 
-        if TablaLibros.validar_codigo(codigo):
-            try:
-                cursor = TablaLibros.conn.cursor()
-                cursor.execute(
-                    """SELECT codigo, titulo, estado, precio
-                                FROM Libros
-                                WHERE codigo=?""",
-                    (codigo,),
-                )
-                resultado = cursor.fetchall()
-            except Error:
-                resultado = (False,)
-            finally:
-                cursor.close()
+        # Valida que el campo seleccionado exista en la tabla
+        if TablaLibros.validar_campos((campo,)):
+            # Si el campo seleccionado es codigo,
+            # valida que valor sea un codigo existente en la tabla
+            if campo == "codigo" and not TablaLibros.validar_codigo(valor):
+                resultado = False
+            else:
+                try:
+                    cursor = TablaLibros.conn.cursor()
+                    cursor.execute(
+                        f"""SELECT codigo, titulo, estado, precio
+                                    FROM Libros
+                                    WHERE {campo}
+                                    LIKE '%{valor}%'"""
+                        )
+                    resultado = cursor.fetchall()
+                except Error:
+                    resultado = False
+                finally:
+                    cursor.close()
         else:
-            resultado = (False,)
+            resultado = False
 
-        return resultado[0]
+        return resultado
 
     # Pana
     # Crear metodo con SELECT que devuelva los libros segun el estado
@@ -129,7 +137,7 @@ class TablaLibros:
     #   SELECT id,autor,COUNT(*) FROM Libros ORDER BY id DESC
 
     @staticmethod
-    def save(libro: Libro) -> bool:
+    def save(libro) -> bool:
         """
         Guarda el liblo pasado por parametro en la tabla de la base de datos
         :param libro: Libro que se desea guardar en la base de datos

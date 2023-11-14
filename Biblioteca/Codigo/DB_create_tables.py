@@ -55,3 +55,7 @@ def create_tables():
     conn.commit()
 
     return resultado
+
+if __name__ == "__main__":
+    result = create_tables()
+    print(result)

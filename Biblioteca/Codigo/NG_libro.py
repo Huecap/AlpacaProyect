@@ -1,8 +1,16 @@
+"""
+Objeto libro
+"""
+
 from HR_validaciones import validar_entero, validar_flotante, validar_string
-from PR_observers import Observer
+from DB_tabla_libros import TablaLibros
 
 
 class Libro:
+    """
+    Clase que representa un libro
+    """
+
     def __init__(self, titulo: str, precio: float) -> None:
         """_summary_
 
@@ -20,18 +28,34 @@ class Libro:
 
     @property
     def codigo(self) -> int:
+        """
+        :return: Devuelve el codigo del libro
+        :rtype: int
+        """
         return self._codigo
 
     @property
     def titulo(self) -> str:
+        """
+        :return: Devuelve el titulo del libro
+        :rtype: str
+        """
         return self._titulo
 
     @property
     def estado(self) -> str:
+        """
+        :return: Devuelve el estado del libro
+        :rtype: str
+        """
         return self._estado
 
     @property
     def precio(self) -> float:
+        """
+        :return: Devuelve el precio del libro
+        :rtype: float
+        """
         return self._precio
 
     # Setters
@@ -57,13 +81,14 @@ class Libro:
         if validar_string(titulo):
             self._titulo = titulo
 
+    #? Seria inecesario # Pana
     @estado.setter
     def estado(self, estado: str):
         """
-        ! En este caso no defini el setter de estado, porque definí 3 funciones más abajo para cambiar los estados posibles
+        ! En este caso no defini el setter de estado,
+        porque definí 3 funciones más abajo para cambiar los estados posibles
         ! De esa manera los unicos estados posibles estan controlados
         """
-        pass
 
     @precio.setter
     def precio(self, precio: float):
@@ -71,7 +96,7 @@ class Libro:
         Metodo setter para el atributo self._precio
 
         :param precio: recibe parametro un str, que valida utilizando el metodo validar_flotante().
-                        En caso que el mismo retorne True, convierte el str en un float y lo asigna a la variable
+        En caso que el mismo retorne True, convierte el str en un float y lo asigna a la variable
         :type precio: float
         """
         if validar_flotante(precio):
@@ -89,7 +114,7 @@ class Libro:
         cadena += f"Precio: {self._precio}"
         return cadena
 
-    # Validaciones de los campos de la clase # Pana
+    #TODO: Validaciones de los campos de la clase # Pana
 
     # Metodos específicos para el cambio de estado
 
@@ -99,20 +124,24 @@ class Libro:
         """
         self._estado = "Prestado"
 
-    def devolver(self):
+    def devolver(self) -> None:
         """
         Permite cambiar el estado del objeto libro a "Disponible"
         """
         self._estado = "Disponible"
 
-    def extraviar(self):
+    def extraviar(self) -> None:
         """
         Permite cambiar el estado del objeto libro a "Extraviado"
         """
         self._estado = "Extraviado"
 
-    def guardar_libro(self):
-        pass
+    def guardar_libro(self) -> None:
+        """
+        Guardar el libro en la tabla Libros de la base de datos
+        """
+        #! No se si esta bien planteado # Pana
+        TablaLibros.save(self)
 
     # Metodos
     def modificar_estado(self, opcion: int):
@@ -125,12 +154,13 @@ class Libro:
             3 = El libro cambia su estado a extraviado
         :type opcion: int
         """
-        if opcion == 1:
-            self.prestar()
-        elif opcion == 2:
-            self.devolver()
-        elif opcion == 3:
-            self.extraviar()
+        if validar_entero(opcion) and 0 < opcion < 4:
+            if opcion == 1:
+                self.prestar()
+            elif opcion == 2:
+                self.devolver()
+            elif opcion == 3:
+                self.extraviar()
 
 
 if __name__ == "__main__":
@@ -140,5 +170,3 @@ if __name__ == "__main__":
     print(libro.codigo)
     print(libro.titulo)
     print(libro.estado)
-
-    print(validar_entero("1"))

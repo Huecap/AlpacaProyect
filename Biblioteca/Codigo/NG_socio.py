@@ -1,12 +1,20 @@
-import time
+"""
+Objeto socio
+"""
+
 from datetime import date, timedelta
 from NG_prestamo import Prestamo
 from NG_libro import Libro
 from PR_observers import Sujeto
-from HR_validaciones import validar_entero, validar_flotante, validar_string
+from HR_validaciones import validar_entero, validar_string
+from DB_tabla_socios import TablaSocios
 
 
 class Socio(Sujeto):
+    """
+    Clase que representa un socio
+    """
+
     def __init__(
         self,
         nombre: str,
@@ -16,7 +24,7 @@ class Socio(Sujeto):
         mail: str,
         direccion: str,
     ) -> None:
-        super().__init__() # Heredemos de la clase Subject del modulo observer 
+        super().__init__()  # Heredemos de la clase Subject del modulo observer
         self._nombre = nombre
         self._apellido = apellido
         self._dni = dni
@@ -24,42 +32,74 @@ class Socio(Sujeto):
         self._mail = mail
         self._direccion = direccion
         self._prestamos = []
-        self._socioID = None # socioID # Pana
+        self._socioID = None
 
     @property
     def nombre(self) -> str:
+        """
+        :return: Devuelve el nombre del socio
+        :rtype: str
+        """
         return self._nombre
 
     @property
     def apellido(self) -> str:
+        """
+        :return: Devuelve el apellido del socio
+        :rtype: str
+        """
         return self._apellido
 
     @property
     def dni(self) -> int:
+        """
+        :return: Devuelve el dni del socio
+        :rtype: int
+        """
         return self._dni
 
     @property
     def telefono(self) -> int:
+        """
+        :return: Devuelve el telefono del socio
+        :rtype: int
+        """
         return self._telefono
 
     @property
     def mail(self) -> str:
+        """
+        :return: Devuelve el mail del socio
+        :rtype: str
+        """
         return self._mail
 
     @property
     def direccion(self) -> str:
+        """
+        :return: Devuelve el direccion del socio
+        :rtype: str
+        """
         return self._direccion
 
     @property
     def prestamos(self) -> list:
+        """
+        :return: Devuelve los prestamos del socio
+        :rtype: list
+        """
         return self._prestamos
 
     @property
     def socioID(self) -> int:
+        """
+        :return: Devuelve el ID del socio
+        :rtype: int
+        """
         return self._socioID
 
     @nombre.setter
-    def nombre(self, nombre : str):
+    def nombre(self, nombre: str):
         """
         Metodo setter para el atributo self._nombre
 
@@ -70,7 +110,7 @@ class Socio(Sujeto):
             self._nombre = nombre
 
     @apellido.setter
-    def apellido(self, apellido : str):
+    def apellido(self, apellido: str):
         """
         Metodo setter para el atributo self._apellido
 
@@ -81,7 +121,7 @@ class Socio(Sujeto):
             self._apellido = apellido
 
     @dni.setter
-    def dni(self, dni : int):
+    def dni(self, dni: int):
         """
         Metodo setter para el atributo self._dni
 
@@ -91,9 +131,8 @@ class Socio(Sujeto):
         if validar_entero(dni):
             self._dni = int(dni)
 
-
     @telefono.setter
-    def telefono(self, telefono:int):
+    def telefono(self, telefono: int):
         """
         Metodo setter para el atributo self._telefono
 
@@ -104,7 +143,7 @@ class Socio(Sujeto):
             self._telefono = int(telefono)
 
     @mail.setter
-    def mail(self, mail : str):
+    def mail(self, mail: str):
         """
         Metodo setter para el atributo self._mail
 
@@ -115,7 +154,7 @@ class Socio(Sujeto):
             self._mail = mail
 
     @direccion.setter
-    def direccion(self, direccion : str):
+    def direccion(self, direccion: str):
         """
         Metodo setter para el atributo self._direccion
 
@@ -126,68 +165,87 @@ class Socio(Sujeto):
             self._direccion = direccion
 
     @socioID.setter
-    def socioID(self, id : int):
+    def socioID(self, identificador: int):
         """
-        Metodo setter para el atributo self._
+        Metodo setter para el atributo self._socioID
 
-        :param id: Id de socio que queremos establecer 
-        :type id: int
+        :param identificador: Id de socio que queremos establecer
+        :type identificador: int
         """
-        if validar_entero(id):
-            self._socioID = id # Pana
+        if validar_entero(identificador):
+            self._socioID = identificador  # Pana
 
     # --- Metodos --- #
-    
+
     def nuevo_prestamo(self, libro, cantidadDias):
-        if len(self._prestamos) <= 2:
+        """
+        Crear un nuevo prestamo del socio
+        :param libro: Libro pedido por el socio
+        :type libro: Libro
+        :param cantidadDias: Cantidad de dias del prestamo
+        :type cantidadDias: int
+        :return: Devuelve una cadena de texto que informa si el prestamo fue creado con exito o no
+        :rtype: str
+        """
+        if len(self._prestamos) <= 3:
             fechaPrestamo = date.today()  # nos toma la fecha actual
-            delta = timedelta(days=cantidadDias)  # Definimos el intervalo de tiempo para poder operar con este
+            delta = timedelta(
+                days=cantidadDias
+            )  # Definimos el intervalo de tiempo para poder operar con este
             # Creamos el objeto Prestamo
-            prestamo = Prestamo(libro, fechaPrestamo, delta, socioID=self._socioID)
-            # Agremos el prestamo el Socio
+            # TODO: Verificar luego de corregir NG_prestamo # Pana
+            prestamo = Prestamo(fechaPrestamo, delta, self._socioID, libro)
+            #! Deveria almacenarse en la base de datos # Pana
+            # Agremos el prestamo al Socio
             self._prestamos.append(prestamo)
 
             return "El prestamo se registro con éxito"
         else:
             return "El socio no puede solicitar más prestamos"
-        
 
     def registrar_devolucion(self, prestamo):
+        """
+        Registra que el prestamo fue cumplido en tiempo y forma
+        :param prestamo: Prestamo al cual actualizar el estado
+        :type prestamo: Prestamo
+        """
         prestamo.modificar_estado(3)
         self._prestamos.remove(prestamo)
         return "La devolucion se registro con Exito"
 
-
     def guardar_socio(self):
-        pass 
-    
-    
-    
+        #! No se si esta bien planteado # Pana
+        TablaSocios.save(self)
+
     def __str__(self) -> str:
         cadena = f"Nombre: {self._nombre} \n"
         cadena += f"Apellido: {self._apellido}\n"
-        cadena += f"Dni {self._dni}\n"
-        cadena += f"Telefono {self._telefono}\n"
+        cadena += f"Dni: {self._dni}\n"
+        cadena += f"Telefono: {self._telefono}\n"
         cadena += f"Mail: {self._mail}\n"
         cadena += f"Dirección: {self._direccion}\n"
         cadena += f"Id: {self._socioID}\n"
-        for prestamo in self._prestamos: cadena += f"{prestamo}"
+        for prestamo in self._prestamos:
+            cadena += f"{prestamo}"
         return cadena
 
-    ## ! --- Métodos de prueba despues BORRAR --- ##  
 
+if __name__ == "__main__":
+    socio1 = Socio(
+        "Juan",
+        "Carlos",
+        43061739,
+        99999,
+        "Juancho01@gmail.com",
+        "Av.Marcelo T de alvear 1123",
+    )
+    libro1 = Libro("Harry popoter", 1000)
+    libro1.codigo = 1111
 
-if __name__ == '__main__':
-    
-    socio1 = Socio('Juan', 'Carlos', 43061739, 99999, 'Juancho01@gmail.com', 'Av.Marcelo T de alvear 1123')
-    libro = Libro('Harry popoter', 1000)
-    libro.codigo = 1111
-    
     socio1.socioID = 1
     print()
-    print(socio1.nuevo_prestamo(libro, 10))
+    print(socio1.nuevo_prestamo(libro1, 10))
     print(socio1)
     # socio1.mostrar_prestamos()
     print(socio1.registrar_devolucion(socio1.prestamos[0]))
     print(socio1)
-    
