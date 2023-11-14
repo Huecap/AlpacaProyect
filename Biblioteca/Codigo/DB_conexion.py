@@ -11,9 +11,9 @@ class DBConnection:
     _instance = None
     dbconnection = None
 
-    def __new__(cls, connection_string):
+    def __new__(cls):
         if not cls._instance:
             cls._instance = super(DBConnection, cls).__new__(cls)
-            cls.dbconnection = sqlite3.connect(connection_string)
+            cls.dbconnection = sqlite3.connect("biblioteca.db")
 
         return cls._instance

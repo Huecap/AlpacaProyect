@@ -17,6 +17,8 @@ def listado_list_tuple(lista: list, orden=0, *encabezado) -> str:
 
     for tupla in lista:
         for campo in tupla:
+            if campo is None:
+                campo = 'None'
             cadena += f"- {campo:<{may}} "
         cadena += '\n'
 
@@ -34,6 +36,8 @@ def cuadro_list_tuple(lista: list, orden=0, *encabezado) -> str:
 
     for tupla in lista:
         for campo in tupla:
+            if campo is None:
+                campo = 'None'
             cadena += f"| {campo:<{may}} "
         cadena += '|\n'
 

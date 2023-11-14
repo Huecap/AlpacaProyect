@@ -12,7 +12,7 @@ class TablaLibros:
     Clase que representa y se comunica con la Tabla Libros de la base de datos
     """
 
-    conn = DBConnection("biblioteca.db").dbconnection
+    conn = DBConnection().dbconnection
 
     #! ELIMINAR
     @staticmethod
@@ -25,7 +25,9 @@ class TablaLibros:
         """
 
         libros = TablaLibros.show_table()
-        cadena = formats.cuadro_list_tuple(libros, 1, 'Codigo', 'Titulo', 'Estado', 'Precio')
+        cadena = formats.cuadro_list_tuple(
+            libros, 1, "Codigo", "Titulo", "Estado", "Precio"
+        )
 
         return cadena
 
@@ -115,7 +117,7 @@ class TablaLibros:
                                     FROM Libros
                                     WHERE {campo}
                                     LIKE '%{valor}%'"""
-                        )
+                    )
                     resultado = cursor.fetchall()
                 except Error:
                     resultado = False

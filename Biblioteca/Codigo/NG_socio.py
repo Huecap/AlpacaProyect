@@ -3,14 +3,14 @@ Objeto socio
 """
 
 from datetime import date, timedelta
-from NG_prestamo import Prestamo
-from NG_libro import Libro
 from PR_observers import Sujeto
 from HR_validaciones import validar_entero, validar_string
 from DB_tabla_socios import TablaSocios
 from DB_tabla_prestamos import TablaPrestamos
 
 
+#! Hay que definir como instanciar los objetos a partir de la base de datos
+#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
 class Socio(Sujeto):
     """
     Clase que representa un socio
@@ -34,6 +34,7 @@ class Socio(Sujeto):
         self._direccion = direccion
         self._prestamos = []
         self._socioID = None
+        self.guardar_socio()
 
     @property
     def nombre(self) -> str:
@@ -188,6 +189,9 @@ class Socio(Sujeto):
         :return: Devuelve una cadena de texto que informa si el prestamo fue creado con exito o no
         :rtype: str
         """
+        #! Para evitar la importacion ciclica
+        from NG_prestamo import Prestamo
+
         if len(self._prestamos) <= 3:
             fechaPrestamo = date.today()  # nos toma la fecha actual
             delta = timedelta(
@@ -196,7 +200,7 @@ class Socio(Sujeto):
             # Creamos el objeto Prestamo
             # TODO: Verificar luego de corregir NG_prestamo # Pana
             prestamo = Prestamo(fechaPrestamo, delta, self._socioID, libro)
-            #! TablaPrestamos.save(prestamo)
+            TablaPrestamos.save(prestamo)
             # Agremos el prestamo al Socio
             self._prestamos.append(prestamo)
 
@@ -228,24 +232,3 @@ class Socio(Sujeto):
         for prestamo in self._prestamos:
             cadena += f"{prestamo}"
         return cadena
-
-
-if __name__ == "__main__":
-    socio1 = Socio(
-        "Juan",
-        "Carlos",
-        43061739,
-        99999,
-        "Juancho01@gmail.com",
-        "Av.Marcelo T de alvear 1123",
-    )
-    libro1 = Libro("Harry popoter", 1000)
-    libro1.codigo = 1111
-
-    socio1.socioID = 1
-    print()
-    print(socio1.nuevo_prestamo(libro1, 10))
-    print(socio1)
-    # socio1.mostrar_prestamos()
-    print(socio1.registrar_devolucion(socio1.prestamos[0]))
-    print(socio1)

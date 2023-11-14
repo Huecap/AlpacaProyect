@@ -6,6 +6,8 @@ from HR_validaciones import validar_entero, validar_flotante, validar_string
 from DB_tabla_libros import TablaLibros
 
 
+#! Hay que definir como instanciar los objetos a partir de la base de datos
+#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
 class Libro:
     """
     Clase que representa un libro
@@ -89,7 +91,11 @@ class Libro:
         porque definí 3 funciones más abajo para cambiar los estados posibles
         ! De esa manera los unicos estados posibles estan controlados
         """
-        if validar_string(estado) and estado in ['Prestado', 'Disponible', 'Extraviado']:
+        if validar_string(estado) and estado in [
+            "Prestado",
+            "Disponible",
+            "Extraviado",
+        ]:
             self._estado = estado
 
     @precio.setter
@@ -116,27 +122,7 @@ class Libro:
         cadena += f"Precio: {self._precio}"
         return cadena
 
-    #TODO: Validaciones de los campos de la clase # Pana
-
-    # Metodos específicos para el cambio de estado
-
-    def prestar(self) -> None:
-        """
-        Permite cambiar el estado del objeto libro a Prestado
-        """
-        self.estado = "Prestado"
-
-    def devolver(self) -> None:
-        """
-        Permite cambiar el estado del objeto libro a "Disponible"
-        """
-        self.estado = "Disponible"
-
-    def extraviar(self) -> None:
-        """
-        Permite cambiar el estado del objeto libro a "Extraviado"
-        """
-        self.estado = "Extraviado"
+    # TODO: Validaciones de los campos de la clase # Pana
 
     def guardar_libro(self) -> None:
         """
@@ -144,7 +130,8 @@ class Libro:
         """
         TablaLibros.save(self)
 
-    # Metodos
+    # Metodo específico para el cambio de estado
+
     def modificar_estado(self, opcion: int):
         """
         Modifica el estado del libro
@@ -157,11 +144,11 @@ class Libro:
         """
         if validar_entero(opcion) and 0 < opcion < 4:
             if opcion == 1:
-                self.prestar()
+                self.estado = "Prestado"
             elif opcion == 2:
-                self.devolver()
+                self.estado = "Disponible"
             elif opcion == 3:
-                self.extraviar()
+                self.estado = "Extraviado"
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ class TablaPrestamos:
     Clase que representa y se comunica con la Tabla Prestamos de la base de datos
     """
 
-    conn = DBConnection("biblioteca.db").dbconnection
+    conn = DBConnection().dbconnection
 
     #! ELIMINAR
     @staticmethod
@@ -29,7 +29,7 @@ class TablaPrestamos:
         prestamos = TablaPrestamos.show_table()
         cadena = formats.cuadro_list_tuple(
             prestamos,
-            1,
+            0,
             "Codigo",
             "Fecha de Prestamo",
             "Cantidad de Dias",
@@ -136,7 +136,7 @@ class TablaPrestamos:
                     cursor = TablaPrestamos.conn.cursor()
                     cursor.execute(
                         f"""SELECT codigo, fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo
-                                    FROM Libros
+                                    FROM Prestamos
                                     WHERE {campo}
                                     LIKE '%{valor}%'"""
                     )
@@ -179,8 +179,8 @@ class TablaPrestamos:
                     prestamo.cantidadDias,
                     prestamo.fechaDevolucion,
                     prestamo.estado,
-                    prestamo.socioID,
-                    prestamo.libro.codigo,  #! En caso de que el prestamo almacene el objeto libro
+                    prestamo.socio.socioID,
+                    prestamo.libro.codigo,
                 ),
             )
             prestamo.codigo = codigo.fetchall()[0][0]

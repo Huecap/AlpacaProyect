@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from NG_libro import Libro
+from NG_socio import Socio
 from PR_observers import Observer
 from HR_validaciones import (
     validar_entero,
@@ -8,25 +9,22 @@ from HR_validaciones import (
 )
 from DB_tabla_prestamos import TablaPrestamos
 
+
+#! Hay que definir como instanciar los objetos a partir de la base de datos
+#! No deberia guardarse automaticamente el objeto si ya existe en la base de datos
 class Prestamo(Observer):
     def __init__(
-        self,
-        fechaPrestamo: datetime,
-        cantidadDias: int,
-        socioID: int,
-        libro: Libro
-        # ? Huenu : Esto lo tenemos que poner como objeto ya que tiene que interactuar con el objeto, si ponemos el Id solo no tiene como conocerlo
-        # ? Mi idea aca es: definir despues el metodo guardar prestamo en base de datos que te guarde el prestamo con el id del libro (en vez del objeto)
-        # ? Definir un metodo que sea cargar prestamo que busque en la base de datos el id del libro, lo instancie, e instancie el objeto prestamo referenciando a ese objeto libro
+        self, fechaPrestamo: datetime, cantidadDias: int, socio: Socio, libro: Libro
     ) -> None:
         self._codigo = None
         self._fechaPrestamo = fechaPrestamo
         self._cantidadDias = cantidadDias
         self._fechaDevolucion = None
         self._estado = "En Fecha"
-        self._socioID = socioID
+        self._socio = socio
         self._libro = libro
         self.libro.modificar_estado(1)
+        self.guardar_prestamo()
 
     @property
     def codigo(self) -> int:
@@ -69,15 +67,15 @@ class Prestamo(Observer):
         return self._estado
 
     @property
-    def socioID(self) -> int:
+    def socio(self) -> Socio:
         """
-        :return: Devuelve socioID del prestamo
-        :rtype: int
+        :return: Devuelve socio del prestamo
+        :rtype: Socio
         """
-        return self._socioID
+        return self._socio
 
-    #? Aca podriamos devolver el libro a partir de una busqueda en la base de datos
-    #? teniendo previamente el codigo
+    # ? Aca podriamos devolver el libro a partir de una busqueda en la base de datos
+    # ? teniendo previamente el codigo
     @property
     def libro(self) -> Libro:
         """
@@ -90,7 +88,6 @@ class Prestamo(Observer):
     def codigo(self, valor: int):
         if validar_entero(valor):
             self._codigo = int(valor)
-
 
     @fechaPrestamo.setter
     def fechaPrestamo(self, fecha: date):
@@ -109,13 +106,18 @@ class Prestamo(Observer):
 
     @estado.setter
     def estado(self, estado: str):
-        if validar_string(estado) and estado in ['En Fecha', 'Vencido', 'Devuelto', 'Extraviado']:
+        if validar_string(estado) and estado in [
+            "En Fecha",
+            "Vencido",
+            "Devuelto",
+            "Extraviado",
+        ]:
             self._estado = estado
 
-    @socioID.setter
-    def socioID(self, identificador: int):
-        if validar_entero(identificador):
-            self._socioID = int(identificador)
+    @socio.setter
+    def socio(self, socio: Socio):
+        if isinstance(socio, Socio):
+            self._socio = socio
 
     @libro.setter
     def libro(self, libro: Libro):
@@ -128,59 +130,33 @@ class Prestamo(Observer):
         Obtenemos la fecha de prestamo en formato "Año - Mes - Día"
         """
         fecha = self._fechaPrestamo
-        cadena = fecha.strftime(
-            "%Y-%m-%d"
-        )
+        cadena = fecha.strftime("%Y-%m-%d")
         return cadena
-
-    def prestamo_en_fecha(self):
-        """
-        Modificar el estado del prestamo a 'En Fecha'
-        """
-        self.estado = "En Fecha"
-        self._libro.modificar_estado(1)
-
-    def prestamo_vencido(self):
-        """
-        Modificar el estado del prestamo a 'Vencido'
-        """
-        self.estado = "Vencido"
-        self._libro.modificar_estado(1)
-
-    def prestamo_devuelto(self):
-        """
-        Modificar el estado del prestamo a 'Devuelto'
-        """
-        self.estado = "Devuelto"
-        self._libro.modificar_estado(2)
-        self._fechaDevolucion = date.today()
-
-    def prestamo_extraviado(self):
-        """
-        Modificar el estado del prestamo a 'Extraviado'
-        """
-        self.estado = "Extraviado"
-        self._libro.modificar_estado(3)
 
     def modificar_estado(self, estado: int):
         """Modifica el estado del Prestamo
 
         :param estado: Valor numérico que representa el estado del prestamo
             1 = Prestamo en Fecha
-            2 = Prestamo vencido (es decir se paso de la cantidad de días establecidas para el prestamo pero es menor a 30)
+            2 = Prestamo vencido (se paso de la cantidad de días establecidos para el prestamo pero es menor a 30)
             3 = El prestamo fue devuelto
             4 = El prestamo no fue devuelto más de 30 días
         :type estado: int
         """
         if validar_entero(estado) and 0 < estado < 5:
             if estado == 1:
-                self.prestamo_en_fecha()
+                self.estado = "En Fecha"
+                self._libro.modificar_estado(1)
             elif estado == 2:
-                self.prestamo_vencido()
+                self.estado = "Vencido"
+                self._libro.modificar_estado(1)
             elif estado == 3:
-                self.prestamo_devuelto()
+                self.estado = "Devuelto"
+                self._libro.modificar_estado(2)
+                self._fechaDevolucion = date.today()
             elif estado == 4:
-                self.prestamo_extraviado()
+                self.estado = "Extraviado"
+                self._libro.modificar_estado(3)
 
     def guardar_prestamo(self):
         """
@@ -212,5 +188,5 @@ class Prestamo(Observer):
         cadena += f"Cantidad días: {self._cantidadDias}\n"
         cadena += f"Fecha Devolucion: {self._fechaDevolucion}\n"
         cadena += f"Estado: {self._estado}\n"
-        cadena += f"socioID: {self._socioID}\n"
+        cadena += f"socioID: {self._socio.socioID}\n"
         return cadena

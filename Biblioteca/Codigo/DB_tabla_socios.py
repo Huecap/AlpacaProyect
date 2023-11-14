@@ -12,7 +12,7 @@ class TablaSocios:
     Clase que representa y se comunica con la Tabla Socios de la base de datos
     """
 
-    conn = DBConnection("biblioteca.db").dbconnection
+    conn = DBConnection().dbconnection
 
     #! ELIMINAR
     @staticmethod
@@ -25,7 +25,17 @@ class TablaSocios:
         """
 
         socio = TablaSocios.show_table()
-        cadena = formats.cuadro_list_tuple(socio, 1, 'socioID', 'Nombre', 'Apellido', 'DNI', 'Telefono', 'Mail', 'Direccion')
+        cadena = formats.cuadro_list_tuple(
+            socio,
+            1,
+            "socioID",
+            "Nombre",
+            "Apellido",
+            "DNI",
+            "Telefono",
+            "Mail",
+            "Direccion",
+        )
 
         return cadena
 

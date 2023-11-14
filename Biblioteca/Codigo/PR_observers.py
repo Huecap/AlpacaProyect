@@ -2,20 +2,19 @@ from abc import ABC, abstractmethod
 
 
 class Observer(ABC):
-    
     @abstractmethod
     def update(self):
-        """"Responsabilidad de las clases derivadas de definir el método"""
-        pass
+        """ "Responsabilidad de las clases derivadas de definir el método"""
+
 
 class Sujeto(ABC):
     def __init__(self):
         self._observers = []
 
-    def attach(self, observer : Observer) -> None:
+    def attach(self, observer: Observer) -> None:
         self._observers.append(observer)
-    
-    def detach(self, observer : Observer) -> None:
+
+    def detach(self, observer: Observer) -> None:
         self._observers.remove(observer)
 
     def notify(self):
