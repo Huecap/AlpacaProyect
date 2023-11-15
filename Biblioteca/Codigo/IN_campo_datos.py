@@ -46,6 +46,18 @@ class Campos_datos(ttk.LabelFrame):
         n = 0 
         for key, value in self._valores.items():
             if n!=0:
+                if key == "Estado":
+                    self.label_nombre = ttk.Label(self, text=key, anchor="center")
+                    self.label_nombre.grid(row=n, column=0, padx=5, pady=(0,10), sticky="we")
+                    
+                    self.filtro = ttk.Combobox(self, state="readonly", values=value[1], width=10)
+                    self.filtro.grid(row=n, column=1, padx=5, pady=(0,10), sticky="we")
+                    self.filtro.current(0)
+                    n += 1
+                    continue
+                    #self.campo_dato1 = ttk.Combobox(self, width=10, justify="center",  validate="key", validatecommand=(self.vcmd_int, '%P'))
+                    # self.campo_dato1.insert(n, value[0])
+                    
                 self.label_nombre = ttk.Label(self, text=key, anchor="center")
                 self.label_nombre.grid(row=n, column=0, padx=5, pady=(0,10), sticky="we")
                 if value[1] == "i":
@@ -88,8 +100,9 @@ class Campos_datos(ttk.LabelFrame):
         """
         datos = []
         for widget in self.winfo_children():
-            if type(widget) is ttk.Entry:
+            if (type(widget) is ttk.Entry) or (type(widget) is ttk.Combobox):
                 datos.append(widget.get())
+        print(f"camposss {datos}")
         return datos 
         
 

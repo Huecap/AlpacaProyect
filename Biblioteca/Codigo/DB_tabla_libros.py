@@ -268,3 +268,11 @@ class TablaLibros:
         var = [tup[0] == codigo for tup in lista_codigos]
 
         return any(var)
+
+
+if __name__ == "__main__":
+    print(TablaLibros.__str__())
+    print(TablaLibros.show_table())
+    a = ('titulo', 'Hola')
+    print(TablaLibros.show_libro(a[0], campo=a[1]))
+    

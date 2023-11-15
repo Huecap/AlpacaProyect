@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import time 
 
+from DB_tabla_libros import TablaLibros
+
+
 class Tabla(ttk.Frame):
     def __init__(self, parent, columnas: tuple, object=None):
         ttk.Frame.__init__(self, parent, padding=10)
@@ -13,7 +16,7 @@ class Tabla(ttk.Frame):
         self.columnas = columnas
         
         self.configurar_tabla()
-        self.llenar_tabla()
+        self.cargar_tabla()
         
     def configurar_tabla(self):
         
@@ -61,7 +64,7 @@ class Tabla(ttk.Frame):
         #           ("{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341"),
        #            ("{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341")]
         
-        #self.cargar_tabla(valores)
+        #self.cargar_tabla()
         
     def limpiar_tabla(self):
     # Obtener todos los elementos en la tabla
@@ -70,19 +73,28 @@ class Tabla(ttk.Frame):
         for elemento in elementos:
             self.tabla.delete(elemento)
     
-    def cargar_tabla(self, valores):
+    
+    #### ! Verificar esto
+    def cargar_tabla(self, valor=None, camp=None):
         """
         Carga los valores ingresados en la tabla 
 
         :param valores: lista de tuplas con los datos 
         :type valores: [tuple]
         """
-        for n in valores:
-            self.tabla.insert("", index="end", values=n)
-    
-    def llenar_tabla(self):
-        for n in range(0, 100):
-            self.tabla.insert("", index="end", values=(f"{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341"))
+        self.limpiar_tabla()
+        if camp is None or valor=="":
+            for n in self.object.tabla_base.show_table():
+                self.tabla.insert("", index="end", values=n)
+        elif self.object.tabla_base.show_libro(valor, campo=camp):
+            for n in self.object.tabla_base.show_libro(valor, campo=camp):
+                self.tabla.insert("", index="end", values=n)
+        print(valor, camp)
+        print(self.object.tabla_base.show_libro(valor, campo=camp))
+        
+    # def llenar_tabla(self):
+        #for n in range(0, 100):
+         #   self.tabla.insert("", index="end", values=(f"{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341"))
 
 
 

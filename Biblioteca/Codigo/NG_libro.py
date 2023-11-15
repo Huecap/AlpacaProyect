@@ -131,6 +131,12 @@ class Libro:
 
     # Metodo específico para el cambio de estado
 
+    def update_libro(self) -> None:
+        """
+        Actualiza el valor del libro en la base de datos
+        """
+        TablaLibros.update_libro(self.titulo, self.estado, self.precio, self.codigo)
+
     def modificar_estado(self, opcion: int):
         """
         Modifica el estado del libro
@@ -148,7 +154,17 @@ class Libro:
                 self.estado = "Disponible"
             elif opcion == 3:
                 self.estado = "Extraviado"
+        self.update_libro()
+        
+    def eliminar_libro(self):
+        TablaLibros.delete_libro(self._codigo)
 
+    def modificar_datos(self, titulo, precio, estado):
+        self.titulo = titulo
+        self.precio = precio
+        self.estado = estado
+        self.update_libro()
+        
 
 if __name__ == "__main__":
     libro = Libro("Harry popoter", 1000)

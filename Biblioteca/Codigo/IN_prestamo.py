@@ -65,3 +65,20 @@ class Prestamo(ttk.Frame):
         campos = ("Codigo", "Titulo", "Id Socio", "Fecha Prestamo", "Dias Prestados", "Fecha Devolcion","Estado")
         self.tabla = Tabla(self.bloque_derecha, campos)
         self.tabla.pack(expand=True, fill="both")
+        
+        
+if __name__ == "__main__":
+    ventana = tk.Tk()
+
+    # Definimos la resolucion por defecto
+    ventana.geometry("1280x480")
+
+    # Seteamos el tema
+    ventana.tk.call("source", "azure.tcl")
+    ventana.tk.call("set_theme", "dark")
+
+    # Creamos el Frame principal
+    programa = Prestamo(ventana)
+    programa.pack(expand=True, fill="both")
+
+    ventana.mainloop()

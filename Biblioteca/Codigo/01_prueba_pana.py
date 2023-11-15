@@ -12,9 +12,13 @@ from DB_create_tables import create_tables
 # print(create_tables())
 
 # socio = Socio('Matias', 'Pana', 11223344, 3511234567, 'elpana@gmail.com', 'Juarez 126 CBA')
-# libro = Libro('Hola Python', 2000)
-# print(socio)
-# print(libro)
+
+for n in range(7):
+    #TablaLibros.delete_libro(19+n)
+    libro = Libro(f'Harry Potter {n}', 2000)
+    libro.modificar_estado(1)
+#print(socio)
+#print(libro)
 
 # print(TablaSocios())
 # print(TablaLibros())
@@ -28,3 +32,5 @@ from DB_create_tables import create_tables
 # print(socio.prestamos)
 
 # print(TablaPrestamos())
+
+# print(TablaLibros())
