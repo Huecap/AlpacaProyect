@@ -264,7 +264,6 @@ class Prestamo_in(ttk.Frame):
                 id_libro = self._valores_obtenidos_campo[4]
             if TablaLibros.show(int(id_libro)):
                 libro = TablaLibros.create_libro(int(id_libro)) 
-                print(id_socio)
                 if TablaSocios.show(int(id_socio)):
                     socio = TablaSocios.create_socio(int(id_socio))
                     if TablaPrestamos.show(int(id_socio), "socioID"):
@@ -293,11 +292,9 @@ class Prestamo_in(ttk.Frame):
                                 self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
                                 self._bandera_nuevo = False
                         else: 
-                            print(self._valores_obtenidos_campo)
                             self.obtener_campos()
                             prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
                             fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
-                            print('HPOLL', self._valores_obtenidos_campo[3])
                             if self._valores_obtenidos_campo[3] != 'Devuelto':
                                 self._valores_obtenidos_campo[2]  = None
                             fecha2 = self._valores_obtenidos_campo[2] 
@@ -357,9 +354,7 @@ class Prestamo_in(ttk.Frame):
                 if valor:
                 # Aca me tiene que eliminar el libro 
                     prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
-                    print(prestamo)
                     prestamo.modificar_estado(3)
-                    print(prestamo)
                     self._valores_barra_busqueda = ('Codigo', '')   
                     self.actualizar_por_busqueda()
                     self.abrir_ventana_emergente("Devolucion Registrada", mensaje="Se registro la devolucion correctamente", tipo=2)

@@ -2,6 +2,11 @@ import tkinter as tk
 from tkinter import ttk
 from screeninfo import get_monitors
 
+
+from DB_tabla_prestamos import TablaPrestamos
+import DB_create_tables 
+
+
 from IN_socio import Socio_in
 from IN_prestamo import Prestamo_in
 from IN_libro import Libro_in
@@ -18,15 +23,22 @@ class App(ttk.Frame):
         self.rowconfigure(index=0, weight=1)
 
         # Create widgets :)
+        DB_create_tables.create_tables()
         self.configuracion_widgets()
+        self._prestamos = []
 
     def cambiar_pestana(self, pestana_index):
         self.notebook.select(pestana_index)
         
-    def accion_al_cambiar_pestana(event):
-        print('Hola Mundo')
-
+    def accion_al_cambiar_pestana(self, event):
+        
+        for n in TablaPrestamos.show_table():
+            prestamo = TablaPrestamos.create_prestamo(n[0])
+            prestamo.update()
+        
+        
     def configuracion_widgets(self):
+        
         # Creamos el Notebook
         self.notebook = ttk.Notebook(self)
 

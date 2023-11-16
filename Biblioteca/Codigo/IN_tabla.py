@@ -83,14 +83,15 @@ class Tabla(ttk.Frame):
         :type valores: [tuple]
         """
         self.limpiar_tabla()
-        if camp is None or valor=="":
-            for n in self.object.tabla_base.show_table():
-                self.tabla.insert("", index="end", values=n)
-        elif self.object.tabla_base.show(valor, campo=camp):
-            for n in self.object.tabla_base.show(valor, campo=camp):
-                self.tabla.insert("", index="end", values=n)
-        print(valor, camp)
-        print(self.object.tabla_base.show(valor, campo=camp))
+        if not self.object.tabla_base.show_table():
+            if camp is None or valor=="":
+                for n in self.object.tabla_base.show_table():
+                    self.tabla.insert("", index="end", values=n)
+            elif self.object.tabla_base.show(valor, campo=camp):
+                for n in self.object.tabla_base.show(valor, campo=camp):
+                    self.tabla.insert("", index="end", values=n)
+            print(valor, camp)
+            print(self.object.tabla_base.show(valor, campo=camp))
         
     # def llenar_tabla(self):
         #for n in range(0, 100):

@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from DB_tabla_prestamos import TablaPrestamos
 from HR_validaciones import (
     validar_entero,
@@ -190,8 +190,10 @@ class Prestamo(Observer):
         :param estado: _description_
         :type estado: _type_
         """
-        fecha_estimada = self._fechaPrestamo + self._cantidadDias
-        if date.today() > fecha_estimada:
+        fecha_prestamo = datetime.strptime(self._fechaPrestamo, "%Y-%m-%d")
+        delta = timedelta(days=float(self._cantidadDias))
+        fecha_estimada = fecha_prestamo + delta
+        if datetime.today() > fecha_estimada:
             if (date.today() - fecha_estimada).day > 30:
                 self.modificar_estado(4)
             else:

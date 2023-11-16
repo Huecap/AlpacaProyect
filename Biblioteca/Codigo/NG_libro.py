@@ -166,10 +166,3 @@ class Libro:
         self.update_libro()
         
 
-if __name__ == "__main__":
-    libro = Libro("Harry popoter", 1000)
-    print(libro)
-    print()
-    print(libro.codigo)
-    print(libro.titulo)
-    print(libro.estado)

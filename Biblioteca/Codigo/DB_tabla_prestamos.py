@@ -342,4 +342,5 @@ if __name__ == "__main__":
         if n[4] == 'En Fecha' or n[4] == 'Extraviado':
             contador += 1
     print(contador)
+    print(TablaPrestamos.show_table())
         
