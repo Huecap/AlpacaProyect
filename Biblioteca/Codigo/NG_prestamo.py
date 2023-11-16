@@ -16,8 +16,8 @@ class Prestamo(Observer):
         self,
         fechaPrestamo: datetime,
         cantidadDias: int,
-        socio: Socio,
-        libro: Libro,
+        socio: int , # Socio id
+        libro: int, # libro id
         crear=True,
     ) -> None:
         self._codigo = None
@@ -180,7 +180,7 @@ class Prestamo(Observer):
             elif estado == 4:
                 self.estado = "Extraviado"
                 self._libro.modificar_estado(3)
-
+            self.update_prestamo()
     # --- Métodos de observer ---- #
 
     def update(self):  # Metodo para update de observers
@@ -196,3 +196,47 @@ class Prestamo(Observer):
                 self.modificar_estado(4)
             else:
                 self.modificar_estado(2)
+
+    def update_prestamo(self) -> None:
+        """
+        Actualiza el valor del libro en la base de datos
+        """
+        
+        TablaPrestamos.update_prestamo(self.fechaPrestamo,
+        self.cantidadDias,
+        self.fechaDevolucion,
+        self.estado,
+        self.socio.socioID,
+        self.libro.codigo,
+        self.codigo)
+
+        if self.estado == "En Fecha":
+            self._libro.modificar_estado(1)
+        elif self.estado == "Vencido":
+            self._libro.modificar_estado(1)
+        elif self.estado == "Devuelto":
+            self._libro.modificar_estado(2)
+            self._fechaDevolucion = date.today()
+        elif self.estado == "Extraviado":
+            self._libro.modificar_estado(3)
+
+    def eliminar_prestamo(self):
+        TablaPrestamos.delete_prestamo(self._codigo)
+
+    def modificar_datos(self, codigo, fechaPrestamo,
+        cantidadDias,
+        fechaDevolucion,
+        estado,
+        socio,
+        libro):
+        
+        self.codigo = codigo
+        self.fechaPrestamo = fechaPrestamo
+        self.cantidadDias = cantidadDias
+        self.fechaDevolucion = fechaDevolucion
+        self.estado = estado
+        self.socio = socio
+        self.libro = libro
+         
+        self.update_prestamo()
+        

@@ -90,7 +90,7 @@ class TablaSocios:
         from NG_socio import Socio
 
         if TablaSocios.validar_id(codigo):
-            registro = TablaSocios.show_socio(codigo)
+            registro = TablaSocios.show(codigo)
 
             if registro:
                 socio = Socio(
@@ -149,7 +149,7 @@ class TablaSocios:
         return resultado
 
     @staticmethod
-    def show_socio(valor, campo: str = "socioID") -> list:
+    def show(valor, campo: str = "socioID") -> list:
         """
         Busca en la tabla Socios por campo especificado por parametro,
         un registro especifico o varios

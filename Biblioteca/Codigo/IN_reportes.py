@@ -1,13 +1,16 @@
+# Reporte que importa de las tablas los SELECTs que le sirven
+# Crear el reporte como un archivo
+# Mostrar el archivo en una ventana aparte
+# (no crear interfaz de usuario para el reporte mas que mostrar el archivo anteriormente creado)
+# Pueden crearse clases hijas para hacer diferentes reportes
+
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 from functools import partial 
-from datetime import datetime
 
 # - Import Lógica de negocio - # 
-from NG_socio import Socio
 from NG_libro import Libro
-from NG_prestamo import Prestamo
 
 # - Import Intefaz - # 
 from IN_tabla import Tabla
@@ -16,11 +19,11 @@ from IN_botonera import Botonera
 from IN_campo_datos import Campos_datos
 
 # - Import  Base de datos - #
-from DB_tabla_prestamos import TablaPrestamos
 from DB_tabla_libros import TablaLibros
 from DB_tabla_socios import TablaSocios
+from DB_tabla_prestamos import TablaPrestamos
 
-class Prestamo_in(ttk.Frame):
+class Reportes_in(ttk.Frame):
     def __init__(self, notebook):
         ttk.Frame.__init__(self, notebook)
         
@@ -31,31 +34,22 @@ class Prestamo_in(ttk.Frame):
         self.rowconfigure(index=1, weight=1)
         self.grid_columnconfigure(index=1, weight=1)
         
-        #self._tabla_base = TablaLibros
-        self._tabla_base = TablaPrestamos
+        self._tabla_base = TablaLibros
         
         # ? Valores del menú desplegable 
-        self._combo = {"codigo":"i","libroCodigo":"i", "cantidadDias":"i", "estado":"s", "socioID":"i"}
-
-            #         self._combo = ["Codigo_libro", "Titulo", "Fecha_prestamo", "Dias_prestados", "Fecha_devolucion", "Estado", "ID_Socio"]
-
-        # fechaPrestamo, cantidadDias, fechaDevolucion, estado, socioID, libroCodigo
+        self._combo = {"codigo":"i", "titulo":"s", "estado":"s", "precio":"f"}
+        
         # ? Valores default del campo de datos 
         # Formato "Nombre_campo":(Valor,tipo) 
-        # self._campos_default = {"libro":(None, "i") ,"Nombre":("","s"), "Apellido":("","s"), "DNI":("", "i"), "Telefono":("", "i"), "Mail":("","s"), "Direccion":("","s")}
-        self._campos_default = {"Codigo":(None, "i") ,"Fecha_prestamo":("","d"), "Dias_prestados":("", "i"), "Codigo Socio":("", "i"), "Estado":("",("En Fecha",
-            "Vencido",
-            "Devuelto",
-            "Extraviado",
-        )), "Codigo Libro":("", "i")}
         
+        self._campos_default = {"Codigo":(None,"i"), "Titulo":("","s"), "Precio":("","f"), "Estado":("",("Disponible", "Prestado", "Extraviado"))}
         # self._campos_mostrar = {"Codigo":(None,"i"), "Titulo":("","s"), "Estado":("","s"), "Precio":("","f")}
         
         # ? ------- Variables de control ---------
 
         ## ------ Barra de Busqueda ----- ##
         ### Valores de la barra de busqueda 
-        self._valores_barra_busqueda = ('Codigo', '')
+        self._valores_barra_busqueda = ('codigo', '')
 
         ## ------ Campos de datos ------- ## 
         ### Estado del campo de datos 
@@ -112,6 +106,7 @@ class Prestamo_in(ttk.Frame):
         #self.focus_set()
         if tipo == 0 :
             ventana_emergente =  messagebox.showerror(titulo, mensaje)
+            print(ventana_emergente)
         elif tipo == 1:
             ventana_emergente = messagebox.askyesno(titulo, mensaje)
         elif tipo == 2:
@@ -130,21 +125,15 @@ class Prestamo_in(ttk.Frame):
         if valor is None:
             t = self._valores_tabla
             self._valores_obtenidos_campo = self._valores_tabla
-            valores = {"Codigo":(t[0], "i"), "Fecha_prestamo":(t[1],"d"), "Dias_prestados":(t[2], "i"), "Fecha_devolucion":(t[3],"d"), "Estado":(t[4],("En Fecha",
-            "Vencido",
-            "Devuelto",
-            "Extraviado",
-        )), "ID_Socio":(t[5], "i"), "libroCodigo":(t[6], "i")}
-            self.datos_socio.actualizar_contenido(valores)
+            valores = {"Codigo":(t[0],"i"), "Titulo":(t[1],"s"), "Precio":(t[3],"f"), "Estado":(t[2],("Disponible", "Prestado", "Extraviado"))}
+            self.datos_libro.actualizar_contenido(valores)
             # Forzamos a que cada vez que se actualicen los datos sea en la vista de datos no en modo edicion
             self._campos_datos_estado = tk.BooleanVar(value=True)
             self.modificar_estado_campos()
         
-    #def mostrar_valor_tabla(self):
-    #    """
-    #    Nos muestar el 
-    #    """
-    #    self.actualizar_layout()
+    def mostrar_valor_tabla(self):
+        self.actualizar_layout()
+        # print(self._valores_tabla)
     
     def modificar_estado_campos(self, modificar=True):
         """
@@ -160,8 +149,8 @@ class Prestamo_in(ttk.Frame):
         """
         if not self._campos_datos_estado.get():
             #Setear configuración modo edición 
-            self.datos_socio.editar_campos()
-            self.datos_socio.pack()
+            self.datos_libro.editar_campos()
+            self.datos_libro.pack()
             botones_valores = {"Cancelar":{"Fila":0, 
                                                 "Columna":0, 
                                                 "Comando":lambda:self.cancelar_operacion()}, 
@@ -171,16 +160,17 @@ class Prestamo_in(ttk.Frame):
             self._campos_datos_estado.set(value=True)
         else:
             # Setear configuración modo visualización 
-            self.datos_socio.ver_campos()
-            self.datos_socio.pack()
-            botones_valores = {"Nuevo Prestamo":{"Fila":0, 
+            self.datos_libro.ver_campos()
+            self.datos_libro.pack()
+            botones_valores = {"Nuevo Libro":{"Fila":0, 
                                                 "Columna":0,
-                                                "Comando":lambda:self.nuevo_pres()}, 
-                                    "Modificar Prestamo":{"Fila":0, 
+                                                "Comando":lambda:self.nuevo_libro()}, 
+                                    "Modificar Libro":{"Fila":0, 
                                                 "Columna":1, 
-                                                "Comando":lambda:self.modificar_prestamo()}}
+                                                "Comando":lambda:self.modificar_libro()}}
             self._campos_datos_estado.set(value=False)
         self.botones_nuevo_editar.editar_botonera(botones_valores)
+        print(self._campos_datos_estado)
     
     def obtener_campos(self):
         """
@@ -194,16 +184,17 @@ class Prestamo_in(ttk.Frame):
         :type botonera: ttk.Frame
         """
         datos = []
-        for widget in self.datos_socio.winfo_children():
-            if (type(widget) is not ttk.Label):
+        for widget in self.datos_libro.winfo_children():
+            if type(widget) is ttk.Entry or (type(widget) is ttk.Combobox):
                 datos.append(widget.get())  
                 
                 self._valores_obtenidos_campo = datos  
         # self.modificar_estado_campos()
+        print(self._valores_obtenidos_campo)
 
     ###### APLICANDO LOGICA DE NEGOCIO ###### 
 
-    def nuevo_pres(self):
+    def nuevo_libro(self):
         """
         Funcion para el boton nuevo libro
         - Limpia los campos de entrada de datos
@@ -212,34 +203,47 @@ class Prestamo_in(ttk.Frame):
         :param botonera: pasamos la botonera a modificar 
         :type botonera: _type_
         """
+        print('Nuevo Librooo')
         self._bandera_nuevo = True
-        self.datos_socio.actualizar_contenido(self._campos_default)
+        #self._campos_default = {"Codigo":(None,"i"), "Titulo":("","s"), "Precio":("","f")}
+        self.datos_libro.actualizar_contenido({"Codigo":(None,"i"), "Titulo":("","s"), "Precio":("","f")})
+        #self.obtener_campos()
         self.modificar_estado_campos(modificar=False)
-
+        self.datos_libro.actualizar_contenido(self._campos_default)
+        #self._campos_default = {"Codigo":(None,"i"), "Titulo":("","s"), "Estado":("","s"), "Precio":("","f")}
+        #self.modificar_estado_campos()
+        # print(self._valores_obtenidos_campo)
+        # self._campos_datos_estado = tk.BooleanVar(value=False)
+        
     
-    def eliminar_socio(self):
+    def eliminar_libro(self):
         """
-        Elimina el socio seleccionado, si no hay ninguno lo informa  
+        Elimina el libro seleccionado, si no hay ninguno no hace nada 
         """
         # Obtenemos los campos 
         self.obtener_campos()
+        print(self._valores_obtenidos_campo)
         if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
             # No hay libro que eliminar 
-            self.abrir_ventana_emergente(mensaje="Error No hay ningun Socio seleccionado")
+            self.abrir_ventana_emergente(mensaje="Error No hay ningun libro seleccionado")
         else:
-            valor = self.abrir_ventana_emergente(mensaje="¿Esta seguro que quiere eliminar este Socio?", tipo=1)
+            valor = self.abrir_ventana_emergente(mensaje="¿Esta seguro que quiere eliminar este libro?", tipo=1)
             if valor:
             # Aca me tiene que eliminar el libro 
-                libro = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
-                libro.eliminar_prestamo()
-                self._valores_barra_busqueda = ('Codigo', '')   
+                print(self._valores_tabla)
+                libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
+                libro.eliminar_libro()
+                self._valores_barra_busqueda = ('codigo', '')   
                 self.actualizar_por_busqueda()
-                self.abrir_ventana_emergente("Eliminación correcta", mensaje="Se elimino el Prestamo correctamente", tipo=2)
+                self.abrir_ventana_emergente("Eliminación correcta", mensaje="Se elimino el Libro correctamente", tipo=2)
+
                 self._valores_obtenidos_campo = []
                 self._campos_datos_estado = tk.BooleanVar(value=True)
                 self.modificar_estado_campos()
-
                 #self.modificar_estado_campos()
+        self._campos_datos_estado = tk.BooleanVar(value=True)
+        self.datos_libro.actualizar_contenido(self._campos_default)
+        self.modificar_estado_campos()
         # Me tiene que salir una ventana que me digo "Esta seguro que desea eliminar el libro"
     
     def guardar_libro(self):
@@ -248,85 +252,37 @@ class Prestamo_in(ttk.Frame):
         """
         self.obtener_campos()
         if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
-            self.abrir_ventana_emergente(mensaje="Error No se puede guardar el Socio, hay campos vacios")
+            self.abrir_ventana_emergente(mensaje="Error No se puede guardar el libro, hay campos vacios")
+            print('No hya nada')
+            #libro = Libro(self._valores_obtenidos_campo)
         else:
             # ! Arregalr esto 
             # Esto es para la creacion de los libros 
-                
-                # Tenemos que verificar si existe el socio , si no existe salta una ventana 
-                    # SI existe el socio lo isntanciamos 
-                # Tenemo que verificar si exsite el libro, si no existe salta una ventana
-            if not self._bandera_nuevo:
-                id_socio = self._valores_tabla[5]
-                id_libro = self._valores_tabla[6]
-            else: 
-                id_socio = self._valores_obtenidos_campo[2]
-                id_libro = self._valores_obtenidos_campo[4]
-            if TablaLibros.show(int(id_libro)):
-                libro = TablaLibros.create_libro(int(id_libro)) 
-                if TablaSocios.show(int(id_socio)):
-                    socio = TablaSocios.create_socio(int(id_socio))
-                # Si existe lo instanciamos 
-                    self.obtener_campos()
-                    if self._bandera_nuevo:
-                        contador = 0
-                        for n in (TablaPrestamos.show(int(id_socio), "socioID")):
-                            if n[4] != 'Devuelto':
-                                contador += 1
-                        if contador < 3:
-                            if libro.estado == "Disponible":
-                                fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
-                                prestamo = Prestamo(fecha,
-                                                    self._valores_obtenidos_campo[1],
-                                                    socio, 
-                                                    libro)                                    
-                                self._bandera_nuevo = False
-                            else:
-                                self.abrir_ventana_emergente("Error", mensaje="Este libro no esta disponible")
-                                self._bandera_nuevo = False
-                        else:
-                            self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
-                            self._bandera_nuevo = False
-                    else: 
-                        self.obtener_campos()
-                        prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
-                        fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
-                        if self._valores_obtenidos_campo[3] != 'Devuelto':
-                            self._valores_obtenidos_campo[2]  = None
-                        fecha2 = self._valores_obtenidos_campo[2] 
-                        if self._valores_obtenidos_campo[2] != None:
-                            fecha2 = datetime.strptime((self._valores_obtenidos_campo[2]), '%d/%m/%y').date()
-                        else:
-                            fecha2 = None
-                        prestamo.modificar_datos(int(self._valores_tabla[0]), fecha,
-                                    int(self._valores_obtenidos_campo[1]), fecha2,
-                                    (self._valores_obtenidos_campo[3]), socio, libro)
-                        self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el socio correctamente", tipo=2)
-                #else:
-                     #   self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
-
-                else:
-                    self.abrir_ventana_emergente("Error", mensaje="No Existe ese socio")
+            # print(self._valores_obtenidos_campo)
+            if self._bandera_nuevo:
+                libro = Libro(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]))
+                self._bandera_nuevo = False
+                self.abrir_ventana_emergente(titulo="Libro creado", mensaje="Libro creado con exito", tipo=2)
                 
             else: 
-                self.abrir_ventana_emergente("Error", mensaje="No existe el libro")
-                
-
+                libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
+                #print(self._valores_obtenidos_campo)
+                libro.modificar_datos(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]), self._valores_obtenidos_campo[2])
+                self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el libro correctamente", tipo=2)
+        
         self._campos_datos_estado = tk.BooleanVar(value=True)
-        self.datos_socio.actualizar_contenido(self._campos_default)
+        self.datos_libro.actualizar_contenido(self._campos_default)
         self.modificar_estado_campos()
 
-        self._valores_barra_busqueda = ('Codigo', '')
+        self._valores_barra_busqueda = ('codigo', '')
         self.actualizar_por_busqueda()
     
-    def modificar_prestamo(self):
+    def modificar_libro(self):
         """
-        Modifica los campos para poder modificar el contenido de un socio
+        Modifica los campos para poder modificar el contenido de un libro 
         """
-        if self._valores_tabla != []:
-            self.modificar_estado_campos()
-        else:
-            self.abrir_ventana_emergente("Error", mensaje="Error no hay ningun campo seleccionado")
+        self.modificar_estado_campos()
+        print('Se modificooo')
     
     def cancelar_operacion(self):
         """
@@ -336,35 +292,13 @@ class Prestamo_in(ttk.Frame):
         
     ##### LOGICA DE NEGOCIO PRESTAMOS 
     
-    def devolver_prestamo(self):
-            """
-            Elimina el socio seleccionado, si no hay ninguno lo informa  
-            """
-            # Obtenemos los campos 
-            self.obtener_campos()
-            if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
-                # No hay libro que eliminar 
-                self.abrir_ventana_emergente(mensaje="Error No hay ningun Socio seleccionado")
-            else:
-                valor = self.abrir_ventana_emergente(mensaje="¿Esta seguro que quiere devolver este Socio?", tipo=1)
-                if valor:
-                # Aca me tiene que eliminar el libro 
-                    prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
-                    prestamo.modificar_estado(3)
-                    self._valores_barra_busqueda = ('Codigo', '')   
-                    self.actualizar_por_busqueda()
-                    self.abrir_ventana_emergente("Devolucion Registrada", mensaje="Se registro la devolucion correctamente", tipo=2)
-                    self._valores_obtenidos_campo = []
-                    self._campos_datos_estado = tk.BooleanVar(value=True)
-                    self.modificar_estado_campos()
+    def nuevo_prestamo(self):
+        self._notebook.select(0)
 
-                    #self.modificar_estado_campos()
-            # Me tiene que salir una ventana que me digo "Esta seguro que desea eliminar el libro"
-        
         
     def ver_prestamo(self):
-        #self._notebook.select(0)
-        pass
+        self._notebook.select(0)
+
 
 
     def actualizar_por_busqueda(self):
@@ -373,10 +307,13 @@ class Prestamo_in(ttk.Frame):
         """
         # Aca me tiene que actualizar la tabla (hacer un filter)
         # Y si existe una sola coincidencia me la tiene que mostrar
+        print(self._valores_barra_busqueda)
         campo =  self._valores_barra_busqueda[0]
         valor = self._valores_barra_busqueda[1]
-        if (campo == 'socioID' or campo =="dni" or campo == "telefono" or campo == "codigo")and valor!="":
+        if campo == 'codigo' and valor != "":
             v = (campo, int(valor))
+        elif campo == 'precio' and valor !="":
+            v = (campo, float(valor))
         else:
             v = (campo, valor)
         
@@ -400,35 +337,39 @@ class Prestamo_in(ttk.Frame):
         
         
         # Creamos los campos para ver la información del socio 
-        self.datos_socio = Campos_datos(self.bloque_izquierda, self._campos_default)
-        self.datos_socio.pack(expand=True, fill="both")
+        self.datos_libro = Campos_datos(self.bloque_izquierda, self._campos_default)
+        self.datos_libro.pack(expand=True, fill="both")
+        
         
         
         # Creamos la botonera 
         ## - Funcionalidades de los botones - ##
 
         ## - Valores de la botonera - ##
-        botones_nuevo_editar = {"Nuevo Prestamo":{"Fila":0, 
+        botones_nuevo_editar = {"Nuevo Libro":{"Fila":0, 
                                                "Columna":0,
-                                               "Comando":lambda:self.nuevo_pres()}, 
-                                "Modificar Prestamo":{"Fila":0, 
+                                               "Comando":lambda:self.nuevo_libro()}, 
+                                "Modificar Libro":{"Fila":0, 
                                                    "Columna":1, 
-                                                   "Comando":lambda:self.modificar_prestamo()}}
+                                                   "Comando":lambda:self.modificar_estado_campos()}}
         ### BOTONES nuevo y editar
         self.botones_nuevo_editar = Botonera(self.bloque_izquierda, botones_nuevo_editar)
         self.botones_nuevo_editar.pack(expand=True, fill="both")
-
-        ### Registrar devolucion### 
-        botones_devolver = {"Registrar Devolucion":{"Fila":0, 
-                                              "Columna":0,
-                                              "Comando":lambda:self.devolver_prestamo()}}
-        self.botones_nuevoPrestamo_verPrestamos = Botonera(self.bloque_izquierda, botones_devolver)
-        self.botones_nuevoPrestamo_verPrestamos.pack()        
+        
+        botones_nuevoPrestamo_verPrestamos = {"Nuevo Prestamo":{"Fila":0, 
+                                                                "Columna":0,
+                                                                "Comando":lambda:self.nuevo_prestamo()}, 
+                                              "Ver Prestamos Libro":{"Fila":0, 
+                                                                     "Columna":1,
+                                                                    "Comando":lambda:self.ver_prestamo()}}
+        ### BOTONES Nuevo y ver prestamos
+        self.botones_nuevoPrestamo_verPrestamos = Botonera(self.bloque_izquierda, botones_nuevoPrestamo_verPrestamos)
+        self.botones_nuevoPrestamo_verPrestamos.pack(expand=True, fill="both")
         
         ### BOTONES eliminar
-        botones_eliminar = {"Eliminar Prestamo":{"Fila":0, 
+        botones_eliminar = {"Eliminar Libro":{"Fila":0, 
                                               "Columna":0,
-                                              "Comando":lambda:self.eliminar_socio()}}
+                                              "Comando":lambda:self.eliminar_libro()}}
         self.botones_nuevoPrestamo_verPrestamos = Botonera(self.bloque_izquierda, botones_eliminar)
         self.botones_nuevoPrestamo_verPrestamos.pack()
         
@@ -439,25 +380,22 @@ class Prestamo_in(ttk.Frame):
         self.bloque_derecha.grid_columnconfigure(index=1, weight=2)
         
         # Tabla 
+
         
-        campos = ("Codigo", "Titulo", "Id Socio", "Fecha Prestamo", "Dias Prestados", "Fecha Devolcion","Estado")
-        campos = ("Codigo Prestamo","Fecha Prestamo","cantidadDias", "FechaDevolucion", "Estado" , "socioID", "Codigo Libro")
-        self.tabla = Tabla(self.bloque_derecha, campos, self)
-        self.tabla.pack(expand=True, fill="both")
         
         
 if __name__ == "__main__":
     ventana = tk.Tk()
 
     # Definimos la resolucion por defecto
-    ventana.geometry("1280x640")
+    ventana.geometry("1280x480")
 
     # Seteamos el tema
     ventana.tk.call("source", "azure.tcl")
     ventana.tk.call("set_theme", "dark")
 
     # Creamos el Frame principal
-    programa = Prestamo_in(ventana)
+    programa = Reportes_in(ventana)
     programa.pack(expand=True, fill="both")
 
     ventana.mainloop()

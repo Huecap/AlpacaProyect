@@ -260,21 +260,29 @@ class Prestamo_in(ttk.Frame):
                 id_socio = self._valores_tabla[5]
                 id_libro = self._valores_tabla[6]
             else: 
-                id_socio = self._valores_obtenidos_campo[2]
+                id_socio = self._valores_obtenidos_campo[3]
                 id_libro = self._valores_obtenidos_campo[4]
             if TablaLibros.show(int(id_libro)):
                 libro = TablaLibros.create_libro(int(id_libro)) 
+                print(id_socio)
                 if TablaSocios.show(int(id_socio)):
                     socio = TablaSocios.create_socio(int(id_socio))
-                # Si existe lo instanciamos 
-                    self.obtener_campos()
-                    if self._bandera_nuevo:
-                        contador = 0
-                        for n in (TablaPrestamos.show(int(id_socio), "socioID")):
-                            if n[4] != 'Devuelto':
-                                contador += 1
-                        if contador < 3:
-                            if libro.estado == "Disponible":
+                    if TablaPrestamos.show(int(id_socio), "socioID"):
+                            
+                            # Si existe lo instanciamos 
+                        self.obtener_campos()
+                        # libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
+                        #prestamo = Socio(self._valores_obtenidos_campo[0], self._valores_obtenidos_campo[1],
+                        #              int(self._valores_obtenidos_campo[2]), int(self._valores_obtenidos_campo[3]),
+                        
+                        if self._bandera_nuevo:
+                        #              self._valores_obtenidos_campo[4], self._valores_obtenidos_campo[5]
+                            #              )
+                            contador = 0
+                            for n in (TablaPrestamos.show(int(id_socio), "socioID")):
+                                if n[4] == 'Vencido' or n[4] == 'Extraviado':
+                                    contador += 1
+                            if contador < 3:
                                 fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
                                 prestamo = Prestamo(fecha,
                                                     self._valores_obtenidos_campo[1],
@@ -282,28 +290,27 @@ class Prestamo_in(ttk.Frame):
                                                     libro)                                    
                                 self._bandera_nuevo = False
                             else:
-                                self.abrir_ventana_emergente("Error", mensaje="Este libro no esta disponible")
+                                self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
                                 self._bandera_nuevo = False
-                        else:
-                            self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
-                            self._bandera_nuevo = False
-                    else: 
-                        self.obtener_campos()
-                        prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
-                        fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
-                        if self._valores_obtenidos_campo[3] != 'Devuelto':
-                            self._valores_obtenidos_campo[2]  = None
-                        fecha2 = self._valores_obtenidos_campo[2] 
-                        if self._valores_obtenidos_campo[2] != None:
-                            fecha2 = datetime.strptime((self._valores_obtenidos_campo[2]), '%d/%m/%y').date()
-                        else:
-                            fecha2 = None
-                        prestamo.modificar_datos(int(self._valores_tabla[0]), fecha,
-                                    int(self._valores_obtenidos_campo[1]), fecha2,
-                                    (self._valores_obtenidos_campo[3]), socio, libro)
-                        self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el socio correctamente", tipo=2)
-                #else:
-                     #   self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
+                        else: 
+                            print(self._valores_obtenidos_campo)
+                            self.obtener_campos()
+                            prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
+                            fecha = datetime.strptime((self._valores_obtenidos_campo[0]), '%d/%m/%y').date()
+                            print('HPOLL', self._valores_obtenidos_campo[3])
+                            if self._valores_obtenidos_campo[3] != 'Devuelto':
+                                self._valores_obtenidos_campo[2]  = None
+                            fecha2 = self._valores_obtenidos_campo[2] 
+                            if self._valores_obtenidos_campo[2] != None:
+                                fecha2 = datetime.strptime((self._valores_obtenidos_campo[2]), '%d/%m/%y').date()
+                            else:
+                                fecha2 = None
+                            prestamo.modificar_datos(int(self._valores_tabla[0]), fecha,
+                                        int(self._valores_obtenidos_campo[1]), fecha2,
+                                        (self._valores_obtenidos_campo[3]), socio, libro)
+                            self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el socio correctamente", tipo=2)
+                    else:
+                        self.abrir_ventana_emergente("Error", mensaje="Este socio tiene demasiados prestamos")
 
                 else:
                     self.abrir_ventana_emergente("Error", mensaje="No Existe ese socio")
@@ -350,7 +357,9 @@ class Prestamo_in(ttk.Frame):
                 if valor:
                 # Aca me tiene que eliminar el libro 
                     prestamo = self._tabla_base.create_prestamo(int(self._valores_tabla[0]))
+                    print(prestamo)
                     prestamo.modificar_estado(3)
+                    print(prestamo)
                     self._valores_barra_busqueda = ('Codigo', '')   
                     self.actualizar_por_busqueda()
                     self.abrir_ventana_emergente("Devolucion Registrada", mensaje="Se registro la devolucion correctamente", tipo=2)

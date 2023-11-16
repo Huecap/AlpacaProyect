@@ -66,3 +66,20 @@ class Socio(ttk.Frame):
         campos = ("Id", "Nombre", "Apellido", "DNI", "Telefono", "Mail", "Direccion")
         self.tabla = Tabla(self.bloque_derecha, campos)
         self.tabla.pack(expand=True, fill="both")
+        
+            
+if __name__ == "__main__":
+    ventana = tk.Tk()
+
+    # Definimos la resolucion por defecto
+    ventana.geometry("1280x640")
+
+    # Seteamos el tema
+    ventana.tk.call("source", "azure.tcl")
+    ventana.tk.call("set_theme", "dark")
+
+    # Creamos el Frame principal
+    programa = Socio(ventana)
+    programa.pack(expand=True, fill="both")
+
+    ventana.mainloop()

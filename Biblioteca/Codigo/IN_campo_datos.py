@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkcalendar import DateEntry
 
 from HR_validaciones_interfaz import validar_entry_int, validar_entry_str, validar_entry_float
 
@@ -53,6 +54,28 @@ class Campos_datos(ttk.LabelFrame):
                     self.filtro = ttk.Combobox(self, state="readonly", values=value[1], width=10)
                     self.filtro.grid(row=n, column=1, padx=5, pady=(0,10), sticky="we")
                     self.filtro.current(0)
+                    n += 1
+                    continue
+                elif "Fecha" in key:
+                    self.label_nombre = ttk.Label(self, text=key, anchor="center")
+                    self.label_nombre.grid(row=n, column=0, padx=(5,10), pady=(0,10), sticky="we")
+                    
+                    if "devolucion" in key:
+                        self.entry_fecha = DateEntry(self, width=12, background="darkblue", foreground="white",date=None, borderwidth=2, state='readonly', 
+                                                     selectmode='day',year=2000,month=1,day=1)
+                    else:
+                        self.entry_fecha = DateEntry(self, width=12, background="darkblue", foreground="white",date=None, borderwidth=2, state='readonly')
+
+                    self.entry_fecha.grid(row=n, column=1, padx=(5, 10), pady=(0,10), sticky="we")
+                    n += 1
+                    continue
+                
+                elif ("ID" in key )or (key == "Codigo"):
+                    self.label_socioID = ttk.Label(self, text=key, anchor="center")
+                    self.label_socioID.grid(row=n, column=0, padx=5, pady=(0,10), sticky="nswe")
+                    
+                    self.label_numero_socioID = ttk.Label(self, text=value[0], anchor="center")
+                    self.label_numero_socioID.grid(row=n, column=1, pady=(0,10),  sticky="nswe")
                     n += 1
                     continue
                     #self.campo_dato1 = ttk.Combobox(self, width=10, justify="center",  validate="key", validatecommand=(self.vcmd_int, '%P'))

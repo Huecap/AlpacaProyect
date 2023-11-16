@@ -55,7 +55,7 @@ class Tabla(ttk.Frame):
         item_seleccionado = self.tabla.item(self.tabla.selection())
         self.object.valores_tabla = item_seleccionado['values']
         # print("Valor seleccionado:", self.object.valores_tabla)
-        self.object.mostrar_valor_tabla()
+        self.object.actualizar_layout()
         #self.limpiar_tabla()
         #valores = [("{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341"),
          #          ("{123+n}", "Juan", "Perez", "4323234", "12344123", "juanchi@gmail.com", "Maristreen 12341"),
@@ -86,11 +86,11 @@ class Tabla(ttk.Frame):
         if camp is None or valor=="":
             for n in self.object.tabla_base.show_table():
                 self.tabla.insert("", index="end", values=n)
-        elif self.object.tabla_base.show_libro(valor, campo=camp):
-            for n in self.object.tabla_base.show_libro(valor, campo=camp):
+        elif self.object.tabla_base.show(valor, campo=camp):
+            for n in self.object.tabla_base.show(valor, campo=camp):
                 self.tabla.insert("", index="end", values=n)
         print(valor, camp)
-        print(self.object.tabla_base.show_libro(valor, campo=camp))
+        print(self.object.tabla_base.show(valor, campo=camp))
         
     # def llenar_tabla(self):
         #for n in range(0, 100):

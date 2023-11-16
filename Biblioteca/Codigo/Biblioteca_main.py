@@ -2,9 +2,12 @@ import tkinter as tk
 from tkinter import ttk
 from screeninfo import get_monitors
 
-from IN_socio import Socio
-from IN_prestamo import Prestamo
-from IN_libro import Libro
+from IN_socio import Socio_in
+from IN_prestamo import Prestamo_in
+from IN_libro import Libro_in
+from IN_reportes import Reportes_in
+
+
 
 
 class App(ttk.Frame):
@@ -17,20 +20,31 @@ class App(ttk.Frame):
         # Create widgets :)
         self.configuracion_widgets()
 
+    def cambiar_pestana(self, pestana_index):
+        self.notebook.select(pestana_index)
+        
+    def accion_al_cambiar_pestana(event):
+        print('Hola Mundo')
+
     def configuracion_widgets(self):
         # Creamos el Notebook
-        notebook = ttk.Notebook(self)
+        self.notebook = ttk.Notebook(self)
 
         # Creamos los frames correspondientes a cada pestaña
-        tab_libros = Libro(notebook)  # Frame para la pesaña libros
-        #tb_socios = Socio(notebook)  # Frame para la pestaña socios
-        #tab_prestamos = Prestamo(notebook)  # Frame para la pestaña prestamos
+        tab_prestamos = Prestamo_in(self.notebook)  # Frame para la pestaña prestamos
+        tb_socios = Socio_in(self.notebook)  # Frame para la pestaña socios
+        tab_libros = Libro_in(self.notebook)  # Frame para la pesaña libros
+        tab_reportes = Reportes_in(self.notebook)  # Frame para la pesaña libros
 
         # Añadimos las pestañas
-        notebook.add(tab_libros, text="LIBROS")
-        #notebook.add(tb_socios, text="SOCIOS")
-        #notebook.add(tab_prestamos, text="PRESTAMOS")
-        notebook.pack(expand=True, fill="both")
+        self.notebook.add(tab_prestamos, text="PRESTAMOS")
+        self.notebook.add(tb_socios, text="SOCIOS")
+        self.notebook.add(tab_libros, text="LIBROS")
+        self.notebook.add(tab_reportes, text="Reportes")
+        self.notebook.bind("<FocusIn>", self.accion_al_cambiar_pestana)
+        self.notebook.pack(expand=True, fill="both")
+
+        
 
 
 if __name__ == "__main__":

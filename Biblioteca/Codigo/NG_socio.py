@@ -195,6 +195,26 @@ class Socio:
         """
         TablaSocios.save(self)
 
+
+    def update_socio(self) -> None:
+        """
+        Actualiza el valor del libro en la base de datos
+        """
+        TablaSocios.update_socio(self.nombre, self.apellido, self.dni, self.telefono, self.mail, self.direccion, self.socioID)
+
+
+    def eliminar_socio(self):
+        TablaSocios.delete_socio(self._socioID)
+
+    def modificar_datos(self,nombre, apellido, dni, telefono, mail, direccion):
+        self.nombre = nombre  
+        self.apellido = apellido 
+        self.dni = dni 
+        self.telefono = telefono 
+        self.mail = mail 
+        self.direccion = direccion 
+        self.update_socio()
+
     def nuevo_prestamo(self, libro, cantidadDias):
         """
         Crear un nuevo prestamo del socio

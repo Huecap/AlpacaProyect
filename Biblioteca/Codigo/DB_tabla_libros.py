@@ -75,7 +75,7 @@ class TablaLibros:
         from NG_libro import Libro
 
         if TablaLibros.validar_codigo(codigo):
-            registro = TablaLibros.show_libro(codigo)
+            registro = TablaLibros.show(codigo)
 
             if registro:
                 libro = Libro(registro[0][1], registro[0][3], crear=False)
@@ -127,7 +127,7 @@ class TablaLibros:
         return resultado
 
     @staticmethod
-    def show_libro(valor, campo: str = "codigo") -> list:
+    def show(valor, campo: str = "codigo") -> list:
         """
         Busca en la tabla Libros por campo especificado por parametro,
         un registro especifico o varios
@@ -271,8 +271,14 @@ class TablaLibros:
 
 
 if __name__ == "__main__":
-    print(TablaLibros.__str__())
-    print(TablaLibros.show_table())
-    a = ('titulo', 'Hola')
-    print(TablaLibros.show_libro(a[0], campo=a[1]))
+    # print(TablaLibros.__str__())
+    #print(TablaLibros.show_table(('codigo', '1')))
     
+    a = ('titulo', 'Harry Potter1')
+    print((TablaLibros.show(a[1], campo=a[0])))
+    contador = 0
+    for n in (TablaLibros.show(a[1], campo=a[0])):
+        if n[2] == 'Prestado' or n[2] == 'Extraviado':
+            contador += 1
+    print(contador)
+        

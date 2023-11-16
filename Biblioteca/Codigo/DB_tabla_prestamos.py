@@ -95,7 +95,7 @@ class TablaPrestamos:
         from NG_prestamo import Prestamo
 
         if TablaPrestamos.validar_codigo(codigo):
-            registro = TablaPrestamos.show_prestamo(codigo)
+            registro = TablaPrestamos.show(codigo)
 
             if registro:
                 socio = TablaSocios.create_socio(registro[0][5])
@@ -155,7 +155,7 @@ class TablaPrestamos:
         return resultado
 
     @staticmethod
-    def show_prestamo(valor, campo: str = "codigo") -> list:
+    def show(valor, campo: str = "codigo") -> list:
         """
         Busca en la tabla Libros por campo especificado por parametro,
         un registro especifico o varios
@@ -330,3 +330,16 @@ class TablaPrestamos:
         var = [tup[0] == codigo for tup in lista_codigos]
 
         return any(var)
+
+if __name__ == "__main__":
+    # print(TablaLibros.__str__())
+    #print(TablaLibros.show_table(('codigo', '1')))
+    
+    a = ('socioID', '1')
+    print((TablaPrestamos.show(a[1], campo=a[0])))
+    contador = 0
+    for n in (TablaPrestamos.show(a[1], campo=a[0])):
+        if n[4] == 'En Fecha' or n[4] == 'Extraviado':
+            contador += 1
+    print(contador)
+        

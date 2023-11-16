@@ -19,6 +19,8 @@ class Libro_in(ttk.Frame):
     def __init__(self, notebook):
         ttk.Frame.__init__(self, notebook)
         
+        self._notebook = notebook
+        
         # Hacemos el frame Responsive 
         self.grid_columnconfigure(index=0, weight=1)
         self.rowconfigure(index=1, weight=1)
@@ -86,7 +88,7 @@ class Libro_in(ttk.Frame):
         self._valores_tabla = valores
     
     
-    def abrir_ventana_emergente(self, titulo="Error", mensaje="HOlis", tipo=0):
+    def abrir_ventana_emergente(self, titulo="Error", mensaje="Aca va un mensaje de error", tipo=0):
         #ventana_emergente = #tk.Toplevel(self)
         #ventana_emergente.title("Ventana Emergente")
 
@@ -99,6 +101,8 @@ class Libro_in(ttk.Frame):
             print(ventana_emergente)
         elif tipo == 1:
             ventana_emergente = messagebox.askyesno(titulo, mensaje)
+        elif tipo == 2:
+            ventana_emergente = messagebox.showinfo(titulo, mensaje)
         return ventana_emergente
             
     def actualizar_layout(self, valor=None, campo=None):
@@ -223,13 +227,15 @@ class Libro_in(ttk.Frame):
                 libro.eliminar_libro()
                 self._valores_barra_busqueda = ('codigo', '')   
                 self.actualizar_por_busqueda()
-                print('Se elimino')
+                self.abrir_ventana_emergente("Eliminación correcta", mensaje="Se elimino el Libro correctamente", tipo=2)
+
                 self._valores_obtenidos_campo = []
                 self._campos_datos_estado = tk.BooleanVar(value=True)
                 self.modificar_estado_campos()
-            else:
-                print('No se elimino')
                 #self.modificar_estado_campos()
+        self._campos_datos_estado = tk.BooleanVar(value=True)
+        self.datos_libro.actualizar_contenido(self._campos_default)
+        self.modificar_estado_campos()
         # Me tiene que salir una ventana que me digo "Esta seguro que desea eliminar el libro"
     
     def guardar_libro(self):
@@ -248,15 +254,20 @@ class Libro_in(ttk.Frame):
             if self._bandera_nuevo:
                 libro = Libro(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]))
                 self._bandera_nuevo = False
+                self.abrir_ventana_emergente(titulo="Libro creado", mensaje="Libro creado con exito", tipo=2)
+                
             else: 
                 libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
                 #print(self._valores_obtenidos_campo)
                 libro.modificar_datos(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]), self._valores_obtenidos_campo[2])
+                self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el libro correctamente", tipo=2)
+        
+        self._campos_datos_estado = tk.BooleanVar(value=True)
+        self.datos_libro.actualizar_contenido(self._campos_default)
+        self.modificar_estado_campos()
+
         self._valores_barra_busqueda = ('codigo', '')
         self.actualizar_por_busqueda()
-        print('Guardando libro')
-
-        self.modificar_estado_campos()
     
     def modificar_libro(self):
         """
@@ -274,10 +285,12 @@ class Libro_in(ttk.Frame):
     ##### LOGICA DE NEGOCIO PRESTAMOS 
     
     def nuevo_prestamo(self):
-        print('Nuevo PRestamoo')
+        self._notebook.select(0)
+
         
     def ver_prestamo(self):
-        print('Ver PRestamoo')
+        self._notebook.select(0)
+
 
 
     def actualizar_por_busqueda(self):
