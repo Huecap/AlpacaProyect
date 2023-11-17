@@ -48,7 +48,6 @@ class Reportes_in(ttk.Frame):
         #self.focus_set()
         if tipo == 0 :
             ventana_emergente =  messagebox.showerror(titulo, mensaje)
-            print(ventana_emergente)
         elif tipo == 1:
             ventana_emergente = messagebox.askyesno(titulo, mensaje)
         elif tipo == 2:

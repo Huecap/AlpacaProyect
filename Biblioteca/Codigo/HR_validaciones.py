@@ -73,25 +73,6 @@ def validar_fecha(valor : date):
     return resultado
 
 
-#? Entiendo como usarlo pero no para que sirve o porque el codigo es como es # Pana
-def validar_validaciones(validacion):
-    """
-    Funcion que recibe como parametro "validacion" una funcion que permite validar valores
-    Es útil para probar los distintos tipos de errores que puede arrojar la validación en si
-    para posteriormente agregarlos a la funcion 
-
-    :param validacion: funcion que queremos encontar los distintos tipos de errores que puede arrojar 
-    :type validacion: function
-    """
-    a = 0
-    while a != 'M': 
-        a = input('Ingrese un valor: ')
-        resultado = validacion(a)
-        if isinstance(resultado, float):
-            print('La operacion fue exitosa')
-        else:
-            print(resultado)
-
 
 if __name__ == '__main__':
     # validar_validaciones(validar_string)

@@ -98,7 +98,6 @@ class Libro_in(ttk.Frame):
         #self.focus_set()
         if tipo == 0 :
             ventana_emergente =  messagebox.showerror(titulo, mensaje)
-            print(ventana_emergente)
         elif tipo == 1:
             ventana_emergente = messagebox.askyesno(titulo, mensaje)
         elif tipo == 2:
@@ -125,7 +124,6 @@ class Libro_in(ttk.Frame):
         
     def mostrar_valor_tabla(self):
         self.actualizar_layout()
-        # print(self._valores_tabla)
     
     def modificar_estado_campos(self, modificar=True):
         """
@@ -162,7 +160,6 @@ class Libro_in(ttk.Frame):
                                                 "Comando":lambda:self.modificar_libro()}}
             self._campos_datos_estado.set(value=False)
         self.botones_nuevo_editar.editar_botonera(botones_valores)
-        print(self._campos_datos_estado)
     
     def obtener_campos(self):
         """
@@ -182,7 +179,6 @@ class Libro_in(ttk.Frame):
                 
                 self._valores_obtenidos_campo = datos  
         # self.modificar_estado_campos()
-        print(self._valores_obtenidos_campo)
 
     ###### APLICANDO LOGICA DE NEGOCIO ###### 
 
@@ -195,7 +191,6 @@ class Libro_in(ttk.Frame):
         :param botonera: pasamos la botonera a modificar 
         :type botonera: _type_
         """
-        print('Nuevo Librooo')
         self._bandera_nuevo = True
         #self._campos_default = {"Codigo":(None,"i"), "Titulo":("","s"), "Precio":("","f")}
         self.datos_libro.actualizar_contenido({"Codigo":(None,"i"), "Titulo":("","s"), "Precio":("","f")})
@@ -204,7 +199,6 @@ class Libro_in(ttk.Frame):
         self.datos_libro.actualizar_contenido(self._campos_default)
         #self._campos_default = {"Codigo":(None,"i"), "Titulo":("","s"), "Estado":("","s"), "Precio":("","f")}
         #self.modificar_estado_campos()
-        # print(self._valores_obtenidos_campo)
         # self._campos_datos_estado = tk.BooleanVar(value=False)
         
     
@@ -214,7 +208,6 @@ class Libro_in(ttk.Frame):
         """
         # Obtenemos los campos 
         self.obtener_campos()
-        print(self._valores_obtenidos_campo)
         if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
             # No hay libro que eliminar 
             self.abrir_ventana_emergente(mensaje="Error No hay ningun libro seleccionado")
@@ -222,7 +215,6 @@ class Libro_in(ttk.Frame):
             valor = self.abrir_ventana_emergente(mensaje="¿Esta seguro que quiere eliminar este libro?", tipo=1)
             if valor:
             # Aca me tiene que eliminar el libro 
-                print(self._valores_tabla)
                 libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
                 libro.eliminar_libro()
                 self._valores_barra_busqueda = ('codigo', '')   
@@ -245,12 +237,10 @@ class Libro_in(ttk.Frame):
         self.obtener_campos()
         if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
             self.abrir_ventana_emergente(mensaje="Error No se puede guardar el libro, hay campos vacios")
-            print('No hya nada')
             #libro = Libro(self._valores_obtenidos_campo)
         else:
             # ! Arregalr esto 
             # Esto es para la creacion de los libros 
-            # print(self._valores_obtenidos_campo)
             if self._bandera_nuevo:
                 libro = Libro(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]))
                 self._bandera_nuevo = False
@@ -258,7 +248,6 @@ class Libro_in(ttk.Frame):
                 
             else: 
                 libro = self._tabla_base.create_libro(int(self._valores_tabla[0]))
-                #print(self._valores_obtenidos_campo)
                 libro.modificar_datos(self._valores_obtenidos_campo[0], float(self._valores_obtenidos_campo[1]), self._valores_obtenidos_campo[2])
                 self.abrir_ventana_emergente("Modificacion correcta", mensaje="Se modifico el libro correctamente", tipo=2)
         
@@ -274,7 +263,6 @@ class Libro_in(ttk.Frame):
         Modifica los campos para poder modificar el contenido de un libro 
         """
         self.modificar_estado_campos()
-        print('Se modificooo')
     
     def cancelar_operacion(self):
         """
@@ -299,7 +287,6 @@ class Libro_in(ttk.Frame):
         """
         # Aca me tiene que actualizar la tabla (hacer un filter)
         # Y si existe una sola coincidencia me la tiene que mostrar
-        print(self._valores_barra_busqueda)
         campo =  self._valores_barra_busqueda[0]
         valor = self._valores_barra_busqueda[1]
         if campo == 'codigo' and valor != "":

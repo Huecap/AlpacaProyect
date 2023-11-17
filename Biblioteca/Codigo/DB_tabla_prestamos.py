@@ -74,7 +74,6 @@ class TablaPrestamos:
                 resultado = True
             except Error as er:
                 resultado = False
-                print(er)
             finally:
                 cursor.close()
         else:
@@ -100,15 +99,13 @@ class TablaPrestamos:
             if registro:
                 socio = TablaSocios.create_socio(registro[0][5])
                 libro = TablaLibros.create_libro(registro[0][6])
-                print(socio)
-                print(libro)
+
                 prestamo = Prestamo(
                     registro[0][1], registro[0][2], socio, libro, crear=False
                 )
                 prestamo.codigo = registro[0][0]
                 prestamo.fechaDevolucion = registro[0][3]
                 prestamo.estado = registro[0][4]
-                print(prestamo)
 
                 resultado = prestamo
         else:
@@ -332,15 +329,10 @@ class TablaPrestamos:
         return any(var)
 
 if __name__ == "__main__":
-    # print(TablaLibros.__str__())
-    #print(TablaLibros.show_table(('codigo', '1')))
     
     a = ('socioID', '1')
-    print((TablaPrestamos.show(a[1], campo=a[0])))
     contador = 0
     for n in (TablaPrestamos.show(a[1], campo=a[0])):
         if n[4] == 'En Fecha' or n[4] == 'Extraviado':
             contador += 1
-    print(contador)
-    print(TablaPrestamos.show_table())
         

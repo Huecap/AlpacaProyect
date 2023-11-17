@@ -102,7 +102,6 @@ class Socio_in(ttk.Frame):
         #self.focus_set()
         if tipo == 0 :
             ventana_emergente =  messagebox.showerror(titulo, mensaje)
-            print(ventana_emergente)
         elif tipo == 1:
             ventana_emergente = messagebox.askyesno(titulo, mensaje)
         elif tipo == 2:
@@ -120,7 +119,6 @@ class Socio_in(ttk.Frame):
         """
         if valor is None:
             t = self._valores_tabla
-            print(self._valores_tabla)
             self._valores_obtenidos_campo = self._valores_tabla
             valores = {"Codigo":(t[0], "i") ,"Nombre":(t[1],"s"), "Apellido":(t[2],"s"), "DNI":(t[3], "i"), "Telefono":(t[4], "i"), "Mail":(t[5],"s"), "Direccion":(t[6],"s")}
             self.datos_socio.actualizar_contenido(valores)
@@ -133,7 +131,6 @@ class Socio_in(ttk.Frame):
     #    Nos muestar el 
     #    """
     #    self.actualizar_layout()
-    #    # print(self._valores_tabla)"
     
     def modificar_estado_campos(self, modificar=True):
         """
@@ -170,7 +167,6 @@ class Socio_in(ttk.Frame):
                                                 "Comando":lambda:self.modificar_socio()}}
             self._campos_datos_estado.set(value=False)
         self.botones_nuevo_editar.editar_botonera(botones_valores)
-        print(self._campos_datos_estado)
     
     def obtener_campos(self):
         """
@@ -190,7 +186,6 @@ class Socio_in(ttk.Frame):
                 
                 self._valores_obtenidos_campo = datos  
         # self.modificar_estado_campos()
-        print(self._valores_obtenidos_campo)
 
     ###### APLICANDO LOGICA DE NEGOCIO ###### 
 
@@ -203,7 +198,6 @@ class Socio_in(ttk.Frame):
         :param botonera: pasamos la botonera a modificar 
         :type botonera: _type_
         """
-        print('Nuevo Librooo')
         self._bandera_nuevo = True
         self.datos_socio.actualizar_contenido(self._campos_default)
         self.modificar_estado_campos(modificar=False)
@@ -215,7 +209,6 @@ class Socio_in(ttk.Frame):
         """
         # Obtenemos los campos 
         self.obtener_campos()
-        print(self._valores_obtenidos_campo)
         if self._valores_obtenidos_campo == [] or ("" in self._valores_obtenidos_campo):
             # No hay libro que eliminar 
             self.abrir_ventana_emergente(mensaje="Error No hay ningun Socio seleccionado")
@@ -223,7 +216,6 @@ class Socio_in(ttk.Frame):
             valor = self.abrir_ventana_emergente(mensaje="¿Esta seguro que quiere eliminar este Socio?", tipo=1)
             if valor:
             # Aca me tiene que eliminar el libro 
-                print(self._valores_tabla)
                 libro = self._tabla_base.create_socio(int(self._valores_tabla[0]))
                 libro.eliminar_socio()
                 self._valores_barra_busqueda = ('socioID', '')   
@@ -297,7 +289,6 @@ class Socio_in(ttk.Frame):
         """
         # Aca me tiene que actualizar la tabla (hacer un filter)
         # Y si existe una sola coincidencia me la tiene que mostrar
-        print(self._valores_barra_busqueda)
         campo =  self._valores_barra_busqueda[0]
         valor = self._valores_barra_busqueda[1]
         if (campo == 'socioID' or campo =="dni" or campo == "telefono" )and valor!="":

@@ -103,14 +103,3 @@ def armar_encabezado(campos, espaciado):
 if __name__ == "__main__":
 
     personas = [('Matias', 'Pana', 11223344), ('Huenu', 'Cap', 55667788), ('Other', 'Person', 11001100)]
-
-    #? Otros formatos:
-    # print(listado_list_tuple(personas))
-    # print(tabla_list_tuple(personas))
-    # print(listado_list_tuple(personas, True))
-    # print(tabla_list_tuple(personas, True))
-    # print(listado_list_tuple(personas, False, 'Nombre', 'Apellido', 'DNI'))
-    # print(tabla_list_tuple(personas, False, 'Nombre', 'Apellido', 'DNI'))
-    # print(listado_list_tuple(personas, True, 'Nombre', 'Apellido', 'DNI'))
-    #! RECOMENDADO:
-    print(tabla_list_tuple(personas, True, 'Nombre', 'Apellido', 'DNI'))
