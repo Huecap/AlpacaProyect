@@ -31,6 +31,11 @@ class App(ttk.Frame):
         self.notebook.select(pestana_index)
         
     def accion_al_cambiar_pestana(self, event):
+        """
+
+        :param event: _description_
+        :type event: _type_
+        """
         
         for n in TablaPrestamos.show_table():
             prestamo = TablaPrestamos.create_prestamo(n[0])
